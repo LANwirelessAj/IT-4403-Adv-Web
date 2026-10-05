@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search Results: "modern web" | Milestone 1 | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+  /* Matches the home page theme (style.css), embedded per milestone requirements */
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --text: #e2e8f0;
+    --heading: #f8fafc;
+    --link: #7dd3fc;
+    --muted: #94a3b8;
+    --line: #334155;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+  code { background: var(--panel); padding: 0 .3rem; border-radius: 4px; }
+  .skip { position: absolute; left: -9999px; }
+  .skip:focus { left: 1rem; top: 1rem; background: var(--panel); padding: .5rem 1rem; z-index: 200; }
+
+  header { background: var(--panel); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+  .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; }
+  .site-title { font-size: 1.3rem; font-weight: bold; color: var(--heading); }
+  header nav ul { list-style: none; display: flex; gap: 1.5rem; }
+  header nav a { color: var(--text); font-weight: 500; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 3rem; }
+  .crumbs { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem; font-size: .9rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .crumbs li + li::before { content: "/"; margin-right: .4rem; }
+  .status { padding: 1rem 1.25rem; background: var(--panel); border-left: 4px solid var(--link); border-radius: 8px; }
+  .status.error { border-left-color: #f87171; }
+  .na { color: var(--muted); font-style: italic; }
+  .tags { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem; }
+  .tags li { background: var(--line); padding: .1rem .6rem; border-radius: 4px; font-size: .85rem; }
+  .no-cover { aspect-ratio: 2 / 3; display: grid; place-items: center; text-align: center; color: var(--muted); background: var(--bg); border: 1px dashed var(--line); padding: .5rem; font-size: .85rem; }
+
+  footer { text-align: center; padding: 2rem; background: var(--panel); color: var(--muted); font-size: .9rem; }
+  footer p + p { margin-top: .3rem; }
+
+  h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.15; color: var(--heading); margin-bottom: .5rem; }
+  .intro { color: var(--muted); max-width: 70ch; margin-bottom: 1.5rem; }
+  .summary { display: flex; flex-wrap: wrap; gap: .5rem 2rem; margin-bottom: 2rem; padding: 1rem 1.25rem; background: var(--panel); border-left: 4px solid var(--link); border-radius: 8px; }
+  .summary div { display: flex; gap: .4rem; }
+  .summary dt { color: var(--muted); }
+  .summary dd { font-weight: 600; color: var(--heading); }
+
+  .results { list-style: none; counter-reset: result; }
+  .result { counter-increment: result; display: grid; grid-template-columns: 120px 1fr; gap: 1.5rem; padding: 1.5rem; background: var(--panel); border-radius: 8px; margin-bottom: 1rem; position: relative; }
+  .result::before { content: "#" counter(result); position: absolute; top: 1rem; right: 1.25rem; color: var(--muted); font-size: .85rem; font-weight: 600; }
+  .thumb img { display: block; width: 120px; height: auto; border-radius: 4px; }
+  .thumb .no-cover { width: 120px; }
+  .result h2 { font-size: 1.35rem; line-height: 1.25; margin: 0 3rem .2rem 0; }
+  .result h2 a { color: var(--heading); }
+  .result h2 a:hover { color: var(--link); }
+  .sub { color: var(--muted); margin-bottom: .35rem; }
+  .authors { margin-bottom: 1rem; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .4rem 1.5rem; margin-bottom: 1rem; }
+  .facts div { border-top: 1px solid var(--line); padding-top: .35rem; }
+  .facts dt { font-size: .85rem; font-weight: 600; color: var(--muted); }
+  .facts dd { overflow-wrap: anywhere; }
+  .result .tags { margin-bottom: 1rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; font-weight: 600; }
+  .access { display: inline-block; vertical-align: middle; font-size: .75rem; font-weight: 600; padding: .05rem .5rem; border: 1px solid var(--link); color: var(--link); border-radius: 4px; margin-left: .4rem; text-transform: capitalize; }
+
+  @media (max-width: 600px) {
+    .result { grid-template-columns: 1fr; }
+    .nav-container { flex-direction: column; gap: 1rem; }
+    header nav ul { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to search results</a>
+
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#milestones">Milestone 1</a></li>
+      <li aria-current="page">Search results</li>
+    </ol>
+  </nav>
+  <h1>Open Library results for "modern web"</h1>
+  <p class="intro">These results come from a saved Open Library search stored in <code>openlibrary-search.json</code>. Each book links to its full record on Open Library.</p>
+  <dl class="summary" id="summary" hidden></dl>
+  <p class="status" id="status" role="status">Loading search results...</p>
+  <ol class="results" id="results" aria-label="Search results"></ol>
+</main>
+
+<footer>
+  <p>Data read from <code>openlibrary-search.json</code>.</p>
+  <p><a href="book.html">View the single book record page</a></p>
+</footer>
+
+<script>
+$(function () {
+  var OL = "https://openlibrary.org";
+  var COVERS = "https://covers.openlibrary.org/b/id/";
+  var NA = "Not available";
+  var EBOOK = { borrowable: "Borrowable", public: "Free to read", printdisabled: "Print-disabled access only", no_ebook: "No ebook" };
+  var LANGS = { eng: "English", spa: "Spanish", fre: "French", ger: "German", ita: "Italian", por: "Portuguese", chi: "Chinese", jpn: "Japanese", rus: "Russian", ara: "Arabic", dut: "Dutch", kor: "Korean", pol: "Polish" };
+
+  /* ---------- Helpers ---------- */
+
+  function esc(s) { return $("<div>").text(String(s)).html(); }
+
+  function arr(v) {
+    if (Array.isArray(v)) return v;
+    return (v === null || v === undefined || v === "") ? [] : [v];
+  }
+
+  // Show the first few items of a long array, then "and N more"
+  function shortList(v, max) {
+    var items = arr(v).filter(function (x) { return x !== null && x !== ""; });
+    if (!items.length) return "";
+    var shown = items.slice(0, max).map(esc).join(", ");
+    return items.length > max ? shown + " and " + (items.length - max) + " more" : shown;
+  }
+
+  function fact(name, html) {
+    return "<div><dt>" + esc(name) + "</dt><dd>" + (html || '<span class="na">' + NA + "</span>") + "</dd></div>";
+  }
+
+  function optFact(name, html) { return html ? fact(name, html) : ""; }
+
+  function coverImg(id, alt) {
+    var $img = $("<img>", { alt: alt, loading: "lazy", width: 120 });
+    $img.on("error", function () {
+      $(this).replaceWith('<div class="no-cover">Cover image not available</div>');
+    });
+    $img.attr("src", COVERS + id + "-M.jpg?default=false");
+    return $img;
+  }
+
+  /* ---------- Load and render ---------- */
+
+  $.getJSON("openlibrary-search.json")
+    .done(function (data) {
+      var docs = arr(data && data.docs);
+
+      // Summary values from the top level of the response
+      var phrase = data.q || data.query || "modern web";
+      var total = data.numFound !== undefined ? data.numFound : (data.num_found !== undefined ? data.num_found : docs.length);
+      $("#summary").html(
+        "<div><dt>Search phrase:</dt><dd>" + esc(phrase) + "</dd></div>" +
+        "<div><dt>Total matches on Open Library:</dt><dd>" + esc(Number(total).toLocaleString()) + "</dd></div>" +
+        "<div><dt>Records in this file:</dt><dd>" + docs.length + "</dd></div>" +
+        (data.documentation_url ? '<div><dt>Source:</dt><dd><a href="' + esc(data.documentation_url) + '">Open Library Search API documentation</a></dd></div>' : "")
+      ).prop("hidden", false);
+
+      if (!docs.length) {
+        $("#status").text("The search file loaded, but its docs array has no book records.");
+        return;
+      }
+
+      // Main loop: one result card per record in the docs array
+      $.each(docs, function (i, doc) {
+        var title = doc.title || "Untitled";
+        var workUrl = doc.key ? OL + doc.key : "";
+
+        // Authors: pair each name with its author_key when available
+        var names = arr(doc.author_name);
+        var keys = arr(doc.author_key);
+        var authors = names.map(function (n, j) {
+          return keys[j] ? '<a href="' + OL + "/authors/" + esc(keys[j]) + '">' + esc(n) + "</a>" : esc(n);
+        }).join(", ");
+
+        // Prefer ISBN-13 values, fall back to whatever ISBNs exist
+        var isbns = arr(doc.isbn);
+        var isbn13 = isbns.filter(function (n) { return String(n).length === 13; });
+        var isbnShown = shortList(isbn13.length ? isbn13 : isbns, 3);
+
+        var langs = arr(doc.language).map(function (c) { return LANGS[c] || String(c).toUpperCase(); });
+
+        var access = doc.ebook_access && doc.ebook_access !== "no_ebook"
+          ? '<span class="access">' + esc(String(doc.ebook_access).replace(/_/g, " ")) + "</span>" : "";
+
+        var rating = doc.ratings_average
+          ? esc(Number(doc.ratings_average).toFixed(1)) + " out of 5" + (doc.ratings_count ? " (" + esc(doc.ratings_count) + " ratings)" : "")
+          : "";
+
+        var years = arr(doc.publish_year).slice().sort();
+        var yearRange = years.length > 1 ? esc(years[0]) + " to " + esc(years[years.length - 1]) : (years.length ? esc(years[0]) : "");
+
+        var $li = $('<li class="result"></li>');
+        var $thumb = $('<div class="thumb"></div>');
+        if (doc.cover_i && doc.cover_i > 0) {
+          $thumb.append(coverImg(doc.cover_i, "Cover of " + title));
+        } else {
+          $thumb.append('<div class="no-cover">Cover image not available</div>');
+        }
+
+        var html = "<div>";
+        html += "<h2>" + (workUrl ? '<a href="' + esc(workUrl) + '">' + esc(title) + "</a>" : esc(title)) + access + "</h2>";
+        if (doc.subtitle) html += '<p class="sub">' + esc(doc.subtitle) + "</p>";
+        html += '<p class="authors">' + (authors ? "By " + authors : '<span class="na">Author not available</span>') + "</p>";
+
+        html += '<dl class="facts">' +
+          fact("First published", doc.first_publish_year ? esc(doc.first_publish_year) : "") +
+          fact("Publisher", shortList(doc.publisher, 3)) +
+          fact("Editions", doc.edition_count ? esc(doc.edition_count) : "") +
+          fact("ISBN", isbnShown) +
+          optFact("Years published", yearRange) +
+          optFact("Language", shortList(langs, 4)) +
+          optFact("Median page count", doc.number_of_pages_median ? esc(doc.number_of_pages_median) + " pages" : "") +
+          optFact("Rating", rating) +
+          optFact("Want to read", doc.want_to_read_count ? esc(doc.want_to_read_count) + " readers" : "") +
+          optFact("Place published", shortList(doc.publish_place, 3)) +
+          fact("Ebook access", doc.ebook_access ? esc(EBOOK[doc.ebook_access] || String(doc.ebook_access).replace(/_/g, " ")) : "") +
+          optFact("Full text", doc.has_fulltext === true ? "Available on Internet Archive" : (doc.has_fulltext === false ? "Not available" : "")) +
+          optFact("Public scan", doc.public_scan_b === true ? "Yes" : (doc.public_scan_b === false ? "No" : "")) +
+          optFact("Archive collections", shortList(doc.ia_collection, 4)) +
+        "</dl>";
+
+        var subjects = arr(doc.subject).slice(0, 8);
+        if (subjects.length) {
+          html += '<ul class="tags" aria-label="Subjects">' + subjects.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>";
+        }
+
+        var actions = "";
+        if (workUrl) actions += '<a href="' + esc(workUrl) + '">View ' + esc(title) + " on Open Library</a>";
+        if (doc.cover_edition_key) actions += '<a href="' + OL + "/books/" + esc(doc.cover_edition_key) + '">View the featured edition</a>';
+        var iaId = doc.lending_identifier_s || arr(doc.ia)[0];
+        if (iaId && doc.has_fulltext) actions += '<a href="https://archive.org/details/' + esc(iaId) + '">' + (doc.ebook_access === "borrowable" ? "Borrow" : "Read") + ' ' + esc(title) + ' on Internet Archive</a>';
+        if (actions) html += '<p class="actions">' + actions + "</p>";
+        html += "</div>";
+
+        $li.append($thumb, html);
+        $("#results").append($li);
+      });
+
+      $("#status").remove();
+    })
+    .fail(function () {
+      $("#status").addClass("error").text(
+        "The search results could not be loaded. Make sure openlibrary-search.json is in the same folder as this page " +
+        "and that the page is opened from a web server (GitHub Pages or Live Server), not directly from the file system.");
+    });
+});
+</script>
+</body>
+</html>

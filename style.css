@@ -137,3 +137,11 @@ footer {
     gap: 1rem;
   }
 }
+
+.card p + p {
+  margin-top: 0.5rem;
+}
+
+.section p + p {
+  margin-top: 0.75rem;
+}
