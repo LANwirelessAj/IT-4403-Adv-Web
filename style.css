@@ -145,3 +145,18 @@ footer {
 .section p + p {
   margin-top: 0.75rem;
 }
+
+.lab-links {
+  list-style: none;
+  margin-top: 0.75rem;
+}
+
+.lab-links li {
+  padding: 0.35rem 0;
+  border-top: 1px solid #334155;
+}
+
+.lab-links .pending {
+  color: #94a3b8;
+  font-style: italic;
+}
