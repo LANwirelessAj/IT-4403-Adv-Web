@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picture Browser Application | Lab 2: jQuery | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+
+  .sr { position:absolute; left:-9999px; }
+  .viewer { background:var(--bg); border-radius:8px; overflow:hidden; aspect-ratio:16/10; display:grid; place-items:center; }
+  .viewer img { width:100%; height:100%; object-fit:cover; display:block; }
+  .missing { color:var(--muted); }
+  .bar { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-top:.75rem; }
+  .caption { font-weight:600; color:var(--heading); }
+  label.inline { display:inline-flex; align-items:center; gap:.35rem; color:var(--text); margin:0 0 0 .5rem; font-weight:500; }
+  label.inline input { width:auto; }
+  .thumbs { display:grid; grid-template-columns:repeat(5,1fr); gap:.5rem; margin-top:.5rem; }
+  .thumbs button { padding:0; background:none; border:3px solid transparent; border-radius:6px; overflow:hidden; opacity:.6; }
+  .thumbs button:hover { opacity:1; background:none; }
+  .thumbs button.active { border-color:var(--link); opacity:1; }
+  .thumbs img { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; }
+  .small { font-size:.85rem; margin-top:.75rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab2">Lab 2: jQuery</a></li>
+      <li aria-current="page">Exercise 7</li>
+    </ol>
+  </nav>
+  <h1>Exercise 7: Picture Browser Application</h1>
+  <p class="lead">Browse five images with Next and Previous buttons, thumbnails, the keyboard, or an automatic slideshow.</p>
+  <section class="card" aria-labelledby="h-pb">
+    <h2 id="h-pb" class="sr">Picture Browser</h2>
+    <div class="viewer">
+      <img id="photo" src="" alt="">
+      <div class="missing" id="missing" hidden>Image could not be loaded.</div>
+    </div>
+    <div class="bar">
+      <p id="caption" class="caption"></p>
+      <p id="counter" class="muted"></p>
+    </div>
+    <div class="controls">
+      <button id="prev" class="alt" aria-label="Previous image">&#8592; Previous</button>
+      <button id="next" aria-label="Next image">Next &#8594;</button>
+      <button id="play" class="alt">Start slideshow</button>
+      <label class="inline"><input type="radio" name="fx" value="fade" checked> Fade</label>
+      <label class="inline"><input type="radio" name="fx" value="slide"> Slide</label>
+    </div>
+    <div id="thumbs" class="thumbs" role="list"></div>
+    <p class="muted small">Keyboard: use the left and right arrow keys to browse, and the space bar to start or stop the slideshow.</p>
+  </section>
+  <section class="card" aria-labelledby="h-credit">
+    <h2 id="h-credit">Image Credits</h2>
+    <p>All five illustrations are original SVG artwork I created for this exercise, so no outside permission or attribution is needed.</p>
+  </section>
+
+</main>
+<footer>
+  <p>Lab 2: jQuery, Exercise 7 | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab2">Back to Lab 2: jQuery</a></p>
+</footer>
+<script>
+$(function () {
+  // Image data stored in a JavaScript array
+  var photos = [
+    { src: "images/sunrise.svg", caption: "Sunrise over the hills" },
+    { src: "images/mountains.svg", caption: "Snowy mountain range" },
+    { src: "images/ocean.svg", caption: "Sailboat on the ocean" },
+    { src: "images/city-night.svg", caption: "City skyline at night" },
+    { src: "images/forest.svg", caption: "Pine forest in summer" }
+  ];
+  var current = 0, timer = null, busy = false;
+
+  // Build thumbnails from the array
+  $.each(photos, function (i, p) {
+    $("<button>", { type: "button", role: "listitem", "aria-label": "Show image " + (i + 1) + ": " + p.caption })
+      .append($("<img>", { src: p.src, alt: "" }))
+      .on("click", function () { stopShow(); go(i); })
+      .appendTo("#thumbs");
+  });
+
+  function render(i) {
+    var p = photos[i];
+    $("#missing").prop("hidden", true);
+    $("#photo").show().attr({ src: p.src, alt: p.caption });
+    $("#caption").text(p.caption);
+    $("#counter").text("Image " + (i + 1) + " of " + photos.length);
+    $("#thumbs button").removeClass("active").eq(i).addClass("active");
+  }
+
+  function go(i) {
+    if (busy || i === current) return;
+    busy = true;
+    var next = (i + photos.length) % photos.length;   // wraps last back to first
+    var fx = $("input[name=fx]:checked").val();
+    var out = fx === "slide" ? "slideUp" : "fadeOut";
+    var into = fx === "slide" ? "slideDown" : "fadeIn";
+    $("#photo")[out](250, function () {
+      current = next;
+      render(current);
+      $("#photo").hide()[into](250, function () { busy = false; });
+    });
+  }
+
+  // Error handling for missing images
+  $("#photo").on("error", function () {
+    $(this).hide();
+    $("#missing").prop("hidden", false);
+    busy = false;
+  });
+
+  function startShow() { timer = setInterval(function () { go(current + 1); }, 2500); $("#play").text("Stop slideshow"); }
+  function stopShow() { clearInterval(timer); timer = null; $("#play").text("Start slideshow"); }
+
+  $("#next").on("click", function () { stopShow(); go(current + 1); });
+  $("#prev").on("click", function () { stopShow(); go(current - 1); });
+  $("#play").on("click", function () { timer ? stopShow() : startShow(); });
+
+  $(document).on("keydown", function (e) {
+    if ($(e.target).is("input, select, textarea")) return;
+    if (e.key === "ArrowRight") { stopShow(); go(current + 1); }
+    if (e.key === "ArrowLeft") { stopShow(); go(current - 1); }
+    if (e.key === " ") { e.preventDefault(); timer ? stopShow() : startShow(); }
+  });
+
+  render(0);
+});
+</script>
+</body>
+</html>

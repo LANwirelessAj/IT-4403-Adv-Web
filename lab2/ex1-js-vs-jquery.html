@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JavaScript and jQuery Comparison | Lab 2: jQuery | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+
+  .file-links { margin-top:.6rem; font-weight:600; }
+  .small { font-size:.85rem; margin-top:.75rem; }
+  .cmp { margin-top:1.25rem; }
+  .out p { margin:.15rem 0; }
+  .out ul, .out ol { margin-left:1.5rem; }
+  .cols { display:flex; gap:2.5rem; flex-wrap:wrap; }
+  .inline-row { display:flex; gap:.5rem; }
+  .inline-row input { max-width:160px; }
+  .demo-link a { display:inline-flex; align-items:center; gap:.5rem; background:#fff; color:#005a9c; padding:.4rem .8rem; border-radius:6px; font-weight:700; }
+  .welcome-wrap { min-height:180px; }
+  #welcome { border:3px solid var(--text); text-align:center; padding:1rem; font-size:2rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab2">Lab 2: jQuery</a></li>
+      <li aria-current="page">Exercise 1</li>
+    </ol>
+  </nav>
+  <h1>Exercise 1: JavaScript and jQuery Comparison</h1>
+  <p class="lead">The six instructor examples, each rewritten in jQuery and compared with the instructor's jQuery version.</p>
+  <section class="card" aria-labelledby="h-how">
+    <h2 id="h-how">How I Did This</h2>
+    <p>For each of the six instructor examples, I ran the JavaScript version first, rewrote it in jQuery on my own, then opened the instructor's jQuery version to compare. Each section below shows the original JavaScript, my jQuery rewrite running live, and what I noticed when I compared mine to the instructor's.</p>
+  </section>
+  <section class="card" aria-labelledby="h-1">
+    <h2 id="h-1">1. Calculations and Output</h2>
+    <div class="grid">
+      <div>
+        <h3>Original JavaScript</h3>
+        <pre><code>var x = 10;
+var y = 4.5;
+var result1 = x + y;
+document.getElementById("result").innerHTML = "&lt;p&gt;x=" + x + ", y=" + y + "&lt;/p&gt;";
+document.write("&lt;p&gt;x + y = " + result1 + "&lt;/p&gt;");
+document.write("&lt;p&gt;x - y = " + (x - y) + "&lt;/p&gt;");
+document.write("&lt;p&gt;x * y = " + x * y + "&lt;/p&gt;");
+document.write("&lt;p&gt;x / y = " + x / y + "&lt;/p&gt;");</code></pre>
+        <p class="file-links"><a href="instructor-examples/example-js/1.calculation.html">Run the instructor's JavaScript version</a></p>
+      </div>
+      <div>
+        <h3>My jQuery Rewrite</h3>
+        <pre><code>$(function () {
+  var x = 10;
+  var y = 4.5;
+  $("#calc-out").html("&lt;p&gt;x=" + x + ", y=" + y + "&lt;/p&gt;");
+  $("#calc-out").append("&lt;p&gt;x + y = " + (x + y) + "&lt;/p&gt;");
+  $("#calc-out").append("&lt;p&gt;x - y = " + (x - y) + "&lt;/p&gt;");
+  $("#calc-out").append("&lt;p&gt;x * y = " + (x * y) + "&lt;/p&gt;");
+  $("#calc-out").append("&lt;p&gt;x / y = " + (x / y) + "&lt;/p&gt;");
+});</code></pre>
+        <p class="muted small">Running live:</p>
+        <div class="out" id="calc-out"></div>
+      </div>
+    </div>
+    <h3 class="cmp">Compared with the Instructor's jQuery Version</h3>
+    <p>My version matched the instructor's approach: <code>.html()</code> for the first line, then <code>.append()</code> for each result. The instructor's jQuery version stops after subtraction and leaves multiplication and division as commented-out <code>document.write()</code> lines with the question "will these work?" They won't. <code>document.write()</code> after the page loads wipes the whole page, so I finished all four operations with <code>.append()</code>.</p>
+    <p class="file-links"><a href="instructor-examples/example-jquery/1.calculation.html">View the instructor's jQuery version</a></p>
+  </section>
+  <section class="card" aria-labelledby="h-2">
+    <h2 id="h-2">2. Loops</h2>
+    <div class="grid">
+      <div>
+        <h3>Original JavaScript</h3>
+        <pre><code>var level = 5;
+document.write("&lt;ul&gt;");
+for (i = 0; i &lt; level; i++) {
+  document.write("&lt;li&gt;List item " + i + "&lt;/li&gt;");
+}
+document.write("&lt;/ul&gt;");</code></pre>
+        <p class="file-links"><a href="instructor-examples/example-js/2.loop.html">Run the instructor's JavaScript version</a></p>
+      </div>
+      <div>
+        <h3>My jQuery Rewrite</h3>
+        <pre><code>$(function () {
+  var level = 5;
+  var items = "";
+  for (var i = 0; i &lt; level; i++) {
+    items += "&lt;li&gt;List item " + i + "&lt;/li&gt;";
+  }
+  $("#loop-out").html("&lt;ul&gt;" + items + "&lt;/ul&gt;");
+});</code></pre>
+        <p class="muted small">Running live:</p>
+        <div class="out" id="loop-out"></div>
+      </div>
+    </div>
+    <h3 class="cmp">Compared with the Instructor's jQuery Version</h3>
+    <p>The instructor's version calls <code>.append("&lt;ul&gt;")</code>, then appends each <code>&lt;li&gt;</code>, then appends <code>"&lt;/ul&gt;"</code>. That looks right but isn't. jQuery builds a complete element from every string, so the first call creates an empty <code>&lt;ul&gt;&lt;/ul&gt;</code> and the list items land outside it. I built the whole list as one string first and inserted it once, which keeps the items inside the list and touches the DOM one time instead of seven.</p>
+    <p class="file-links"><a href="instructor-examples/example-jquery/2.loop.html">View the instructor's jQuery version</a></p>
+  </section>
+  <section class="card" aria-labelledby="h-3">
+    <h2 id="h-3">3. Functions</h2>
+    <div class="grid">
+      <div>
+        <h3>Original JavaScript</h3>
+        <pre><code>function createList() {
+  var level = 5;
+  document.write("&lt;ul&gt;");
+  for (i = 1; i &lt;= level; i++) {
+    document.write("&lt;li&gt;" + i + "&lt;/li&gt;");
+  }
+  document.write("&lt;/ul&gt;");
+}
+function createList2(level, type) {
+  document.write("&lt;" + type + "&gt;");
+  for (i = 1; i &lt;= level; i++) {
+    document.write("&lt;li&gt;" + i + "&lt;/li&gt;");
+  }
+  document.write("&lt;/" + type + "&gt;");
+}
+createList();
+createList2(10, 'ol');</code></pre>
+        <p class="file-links"><a href="instructor-examples/example-js/3.function.html">Run the instructor's JavaScript version</a></p>
+      </div>
+      <div>
+        <h3>My jQuery Rewrite</h3>
+        <pre><code>function createList(level, type) {
+  var $list = $("&lt;" + type + "&gt;");
+  for (var i = 1; i &lt;= level; i++) {
+    $list.append($("&lt;li&gt;").text(i));
+  }
+  return $list;
+}
+
+$(function () {
+  $("#func-out").append(createList(5, "ul"));
+  $("#func-out").append(createList(10, "ol"));
+});</code></pre>
+        <p class="muted small">Running live:</p>
+        <div class="out cols" id="func-out"></div>
+      </div>
+    </div>
+    <h3 class="cmp">Compared with the Instructor's jQuery Version</h3>
+    <p>The JavaScript example needed two functions because one had the list size hardcoded. I folded them into one function with parameters, like <code>createList2</code>, and had it return a jQuery element instead of writing to the page. That makes it reusable: the caller decides where the list goes. The instructor's jQuery version has the same <code>&lt;ul&gt;</code> append issue from the loop example.</p>
+    <p class="file-links"><a href="instructor-examples/example-jquery/3.function.html">View the instructor's jQuery version</a></p>
+  </section>
+  <section class="card" aria-labelledby="h-4">
+    <h2 id="h-4">4. DOM Access</h2>
+    <div class="grid">
+      <div>
+        <h3>Original JavaScript</h3>
+        <pre><code>document.write("The link's innerText: " +
+  document.getElementById("w3clink").innerText);
+document.write("The link's innerHTML: " +
+  document.getElementById("w3clink").innerHTML);
+document.write("The link's href: " +
+  document.getElementById("w3clink").attributes[1].nodeValue);
+document.write("The img's src: " +
+  document.getElementById("w3cimg").attributes[1].nodeValue);</code></pre>
+        <p class="file-links"><a href="instructor-examples/example-js/4.dom-get.html">Run the instructor's JavaScript version</a></p>
+      </div>
+      <div>
+        <h3>My jQuery Rewrite</h3>
+        <pre><code>$(function () {
+  var $out = $("#dom-out");
+  $out.append("&lt;b&gt;The link's inner text:&lt;/b&gt; " + $.trim($("#w3clink").text()));
+  $out.append("&lt;br&gt;&lt;b&gt;The link's inner HTML:&lt;/b&gt; ");
+  $out.append($("&lt;code&gt;").text($.trim($("#w3clink").html())));
+  $out.append("&lt;br&gt;&lt;b&gt;The link's href:&lt;/b&gt; " + $("#w3clink").attr("href"));
+  $out.append("&lt;br&gt;&lt;b&gt;The image's src:&lt;/b&gt; " + $("#w3cimg").attr("src"));
+});</code></pre>
+        <p class="muted small">Running live:</p>
+        <p class="demo-link"><a id="w3clink" href="https://www.w3.org/"><img id="w3cimg" src="https://www.w3.org/2008/site/images/logo-w3c-screen-lg" alt="W3C logo" width="72" onerror="this.remove()"> W3C</a></p><div class="out" id="dom-out"></div>
+      </div>
+    </div>
+    <h3 class="cmp">Compared with the Instructor's jQuery Version</h3>
+    <p>The JavaScript version reads attributes by position with <code>attributes[1]</code>, which breaks if anyone reorders the attributes in the HTML. jQuery's <code>.attr("href")</code> asks for the attribute by name, so it always gets the right one. My version matches the instructor's. The one change I made was showing the inner HTML as escaped text, since inserting it directly would render a second copy of the link instead of showing its markup.</p>
+    <p class="file-links"><a href="instructor-examples/example-jquery/4.dom-get.html">View the instructor's jQuery version</a></p>
+  </section>
+  <section class="card" aria-labelledby="h-5">
+    <h2 id="h-5">5. Click Events</h2>
+    <div class="grid">
+      <div>
+        <h3>Original JavaScript</h3>
+        <pre><code>function displayGrade() {
+  var score = document.getElementById('score').value;
+  var grade;
+  if (score &gt;= 90) grade = 'A';
+  else if (score &gt;= 80) grade = 'B';
+  else if (score &gt;= 70) grade = 'C';
+  else grade = 'F';
+  document.getElementById("result").innerHTML =
+    "Your score is " + score + " and your grade is " + grade;
+}
+// &lt;input type="button" onclick="displayGrade()"&gt;</code></pre>
+        <p class="file-links"><a href="instructor-examples/example-js/5.click.html">Run the instructor's JavaScript version</a></p>
+      </div>
+      <div>
+        <h3>My jQuery Rewrite</h3>
+        <pre><code>function displayGrade() {
+  var score = $("#score").val();
+  var grade;
+  if (score &gt;= 90) grade = "A";
+  else if (score &gt;= 80) grade = "B";
+  else if (score &gt;= 70) grade = "C";
+  else grade = "F";
+  $("#grade-out").html("Your score is " + score + " and your grade is " + grade);
+}
+
+$(function () {
+  $("#calculate").on("click", displayGrade);
+});</code></pre>
+        <p class="muted small">Running live:</p>
+        <label for="score">Enter your score</label><div class="inline-row"><input type="text" id="score" inputmode="numeric" placeholder="e.g. 85"><button id="calculate">Enter a score</button></div><div class="out" id="grade-out"></div>
+      </div>
+    </div>
+    <h3 class="cmp">Compared with the Instructor's jQuery Version</h3>
+    <p>The big difference is where the event is attached. The JavaScript version puts <code>onclick="displayGrade()"</code> right in the HTML. jQuery keeps the HTML clean and attaches the handler in the script with <code>.on("click", displayGrade)</code>. The instructor's version wraps it in an extra anonymous function and mentions passing the function directly as an option, which is what I did. The grading logic itself didn't change at all.</p>
+    <p class="file-links"><a href="instructor-examples/example-jquery/5.click.html">View the instructor's jQuery version</a></p>
+  </section>
+  <section class="card" aria-labelledby="h-6">
+    <h2 id="h-6">6. CSS Manipulation</h2>
+    <div class="grid">
+      <div>
+        <h3>Original JavaScript</h3>
+        <pre><code>function changeColor() {
+  document.getElementById("result").style.backgroundColor = getRandomColorCode();
+}
+function changeSize() {
+  var h = Math.floor(Math.random() * 100) + 50;
+  var w = Math.floor(Math.random() * 200) + 200;
+  document.getElementById("result").style.height = h + "px";
+  document.getElementById("result").style.width = w + "px";
+}
+function changeBorder() {
+  var w = Math.floor(Math.random() * 20) + 5;
+  document.getElementById("result").style.borderWidth = w + "px";
+  document.getElementById("result").style.borderColor = getRandomColorCode();
+}
+// buttons use onclick="changeColor()" and so on</code></pre>
+        <p class="file-links"><a href="instructor-examples/example-js/6.css.html">Run the instructor's JavaScript version</a></p>
+      </div>
+      <div>
+        <h3>My jQuery Rewrite</h3>
+        <pre><code>function getRandomColorCode() {
+  var r = Math.floor(Math.random() * 256);
+  var g = Math.floor(Math.random() * 256);
+  var b = Math.floor(Math.random() * 256);
+  return "rgb(" + r + "," + g + "," + b + ")";
+}
+function changeColor() {
+  $("#welcome").css("background-color", getRandomColorCode());
+}
+function changeSize() {
+  $("#welcome").css({
+    height: Math.floor(Math.random() * 100) + 50 + "px",
+    width: Math.floor(Math.random() * 200) + 200 + "px"
+  });
+}
+function changeBorder() {
+  $("#welcome").css({
+    borderWidth: Math.floor(Math.random() * 20) + 5 + "px",
+    borderColor: getRandomColorCode()
+  });
+}
+function changeStyle() { changeColor(); changeSize(); changeBorder(); }
+
+$(function () {
+  $("#change1").on("click", changeStyle);
+  $("#change2").on("click", changeColor);
+  $("#change3").on("click", changeSize);
+  $("#change4").on("click", changeBorder);
+});</code></pre>
+        <p class="muted small">Running live:</p>
+        <div class="controls"><button id="change1">Change Style</button><button id="change2" class="alt">Change Color</button><button id="change3" class="alt">Change Size</button><button id="change4" class="alt">Change Border</button></div><div class="welcome-wrap"><h3 id="welcome">Welcome</h3></div>
+      </div>
+    </div>
+    <h3 class="cmp">Compared with the Instructor's jQuery Version</h3>
+    <p>In the instructor's jQuery version, <code>changeBorder()</code> still uses <code>document.getElementById(...).style</code>, so it was never fully converted. I rewrote it with <code>.css()</code> like the others and used the object form to set two properties in one call. I also changed <code>Math.random() * 255</code> to <code>* 256</code>, because <code>Math.floor</code> of <code>* 255</code> can never actually reach 255.</p>
+    <p class="file-links"><a href="instructor-examples/example-jquery/6.css.html">View the instructor's jQuery version</a></p>
+  </section>
+  <section class="card" aria-labelledby="h-obs">
+    <h2 id="h-obs">Overall Differences</h2>
+    <dl class="facts">
+      <div><dt>Element selection</dt><dd><code>document.getElementById("result")</code> becomes <code>$("#result")</code>. jQuery uses CSS selector syntax, so the same function works for IDs, classes, and tags.</dd></div>
+      <div><dt>DOM manipulation</dt><dd><code>.text()</code>, <code>.html()</code>, and <code>.attr()</code> work as both getters and setters, and they can be chained.</dd></div>
+      <div><dt>Event handling</dt><dd>JavaScript examples used inline <code>onclick</code> attributes. jQuery attaches handlers in the script with <code>.on("click")</code>, keeping HTML and behavior separate.</dd></div>
+      <div><dt>Output generation</dt><dd>The JavaScript examples lean on <code>document.write()</code>, which only works while the page is loading. jQuery's <code>.html()</code> and <code>.append()</code> work any time.</dd></div>
+      <div><dt>CSS manipulation</dt><dd>One <code>.css({ ... })</code> call replaces several <code>element.style.property</code> lines.</dd></div>
+      <div><dt>Code length</dt><dd>The jQuery versions were shorter every time, mostly because they don't repeat <code>document.getElementById</code>. The core logic (math, loops, if statements) stayed the same.</dd></div>
+    </dl>
+  </section>
+
+</main>
+<footer>
+  <p>Lab 2: jQuery, Exercise 1 | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab2">Back to Lab 2: jQuery</a></p>
+</footer>
+<script>
+// ---- 1. Calculations and Output ----
+$(function () {
+  var x = 10;
+  var y = 4.5;
+  $("#calc-out").html("<p>x=" + x + ", y=" + y + "</p>");
+  $("#calc-out").append("<p>x + y = " + (x + y) + "</p>");
+  $("#calc-out").append("<p>x - y = " + (x - y) + "</p>");
+  $("#calc-out").append("<p>x * y = " + (x * y) + "</p>");
+  $("#calc-out").append("<p>x / y = " + (x / y) + "</p>");
+});
+
+// ---- 2. Loops ----
+$(function () {
+  var level = 5;
+  var items = "";
+  for (var i = 0; i < level; i++) {
+    items += "<li>List item " + i + "</li>";
+  }
+  $("#loop-out").html("<ul>" + items + "</ul>");
+});
+
+// ---- 3. Functions ----
+function createList(level, type) {
+  var $list = $("<" + type + ">");
+  for (var i = 1; i <= level; i++) {
+    $list.append($("<li>").text(i));
+  }
+  return $list;
+}
+
+$(function () {
+  $("#func-out").append(createList(5, "ul"));
+  $("#func-out").append(createList(10, "ol"));
+});
+
+// ---- 4. DOM Access ----
+$(function () {
+  var $out = $("#dom-out");
+  $out.append("<b>The link's inner text:</b> " + $.trim($("#w3clink").text()));
+  $out.append("<br><b>The link's inner HTML:</b> ");
+  $out.append($("<code>").text($.trim($("#w3clink").html())));
+  $out.append("<br><b>The link's href:</b> " + $("#w3clink").attr("href"));
+  $out.append("<br><b>The image's src:</b> " + $("#w3cimg").attr("src"));
+});
+
+// ---- 5. Click Events ----
+function displayGrade() {
+  var score = $("#score").val();
+  var grade;
+  if (score >= 90) grade = "A";
+  else if (score >= 80) grade = "B";
+  else if (score >= 70) grade = "C";
+  else grade = "F";
+  $("#grade-out").html("Your score is " + score + " and your grade is " + grade);
+}
+
+$(function () {
+  $("#calculate").on("click", displayGrade);
+});
+
+// ---- 6. CSS Manipulation ----
+function getRandomColorCode() {
+  var r = Math.floor(Math.random() * 256);
+  var g = Math.floor(Math.random() * 256);
+  var b = Math.floor(Math.random() * 256);
+  return "rgb(" + r + "," + g + "," + b + ")";
+}
+function changeColor() {
+  $("#welcome").css("background-color", getRandomColorCode());
+}
+function changeSize() {
+  $("#welcome").css({
+    height: Math.floor(Math.random() * 100) + 50 + "px",
+    width: Math.floor(Math.random() * 200) + 200 + "px"
+  });
+}
+function changeBorder() {
+  $("#welcome").css({
+    borderWidth: Math.floor(Math.random() * 20) + 5 + "px",
+    borderColor: getRandomColorCode()
+  });
+}
+function changeStyle() { changeColor(); changeSize(); changeBorder(); }
+
+$(function () {
+  $("#change1").on("click", changeStyle);
+  $("#change2").on("click", changeColor);
+  $("#change3").on("click", changeSize);
+  $("#change4").on("click", changeBorder);
+});
+
+
+</script>
+</body>
+</html>

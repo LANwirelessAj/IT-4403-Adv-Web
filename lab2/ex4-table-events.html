@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table Selection and Event Handling | Lab 2: jQuery | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+
+  #assets tbody tr { cursor:pointer; }
+  #assets tbody tr:hover { background:var(--panel2); }
+  tr.odd-style td { background:#334155; color:#fde68a; font-style:italic; border-bottom:1px solid #fbbf24; }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab2">Lab 2: jQuery</a></li>
+      <li aria-current="page">Exercise 4</li>
+    </ol>
+  </nav>
+  <h1>Exercise 4: Table Selection and Event Handling</h1>
+  <p class="lead">Select, style, hide, and restore table rows with jQuery.</p>
+  <section class="card" aria-labelledby="h-t">
+    <h2 id="h-t">Asset Inventory</h2>
+    <div class="controls">
+      <button id="style-odd">Style odd rows</button>
+      <button id="hide-odd">Hide odd rows</button>
+      <button id="restore" class="alt">Restore all rows</button>
+    </div>
+    <p class="muted">Click any row to hide just that row.</p>
+    <div style="overflow-x:auto">
+    <table id="assets">
+      <thead><tr><th>Asset tag</th><th>Type</th><th>Model</th><th>Department</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>1001</td><td>Laptop</td><td>Dell Latitude 5440</td><td>IT Office</td><td>In Service</td></tr>
+        <tr><td>1002</td><td>Monitor</td><td>HP E24 G5</td><td>Engineering</td><td>In Service</td></tr>
+        <tr><td>1003</td><td>Printer</td><td>Brother HL-L6200</td><td>Shipping</td><td>Repair</td></tr>
+        <tr><td>1004</td><td>Laptop</td><td>Lenovo ThinkPad T14</td><td>Quality</td><td>In Service</td></tr>
+        <tr><td>1005</td><td>Tablet</td><td>Zebra ET40</td><td>Warehouse</td><td>In Stock</td></tr>
+        <tr><td>1006</td><td>Desktop</td><td>Dell OptiPlex 7010</td><td>Front Office</td><td>Retired</td></tr>
+        <tr><td>1007</td><td>Scanner</td><td>Zebra DS2208</td><td>Receiving</td><td>In Service</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="out" id="status" aria-live="polite">7 rows showing.</div>
+  </section>
+  <section class="card" aria-labelledby="h-how">
+    <h2 id="h-how">How It Works</h2>
+    <p>The odd rows are selected with <code>$("#assets tbody tr:nth-child(odd)")</code>. That counts from 1, so it picks rows 1, 3, 5, and 7. I used it over jQuery's older <code>:odd</code> filter because <code>:odd</code> counts from 0 (which actually selects rows 2, 4, and 6) and is deprecated in current jQuery.</p>
+    <p>Each body row gets a click handler with <code>$(this).hide()</code>, so only the row you click disappears. Restore calls <code>.show()</code> on every row.</p>
+  </section>
+
+</main>
+<footer>
+  <p>Lab 2: jQuery, Exercise 4 | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab2">Back to Lab 2: jQuery</a></p>
+</footer>
+<script>
+$(function () {
+  var $odd = $("#assets tbody tr:nth-child(odd)");
+
+  function status() {
+    var shown = $("#assets tbody tr:visible").length;
+    $("#status").text(shown + " of " + $("#assets tbody tr").length + " rows showing.");
+  }
+
+  $("#style-odd").on("click", function () {
+    $odd.toggleClass("odd-style");
+    $(this).text($odd.hasClass("odd-style") ? "Remove odd row style" : "Style odd rows");
+  });
+
+  $("#hide-odd").on("click", function () {
+    $odd.hide();
+    status();
+  });
+
+  $("#restore").on("click", function () {
+    $("#assets tbody tr").show();
+    status();
+  });
+
+  // Hide only the row that was clicked
+  $("#assets tbody").on("click", "tr", function () {
+    $(this).hide();
+    status();
+  });
+});
+</script>
+</body>
+</html>

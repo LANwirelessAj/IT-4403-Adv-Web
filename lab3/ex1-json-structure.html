@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore and Understand JSON Structure | Lab 3: JSON | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab3">Lab 3: JSON</a></li>
+      <li aria-current="page">Exercise 1</li>
+    </ol>
+  </nav>
+  <h1>Exercise 1: Explore and Understand JSON Structure</h1>
+  <p class="lead">A breakdown of how an Open Library book record is organized, with real examples pulled from the file.</p>
+  <section class="card" aria-labelledby="h-src">
+    <h2 id="h-src">Source</h2>
+    <p>I studied the Open Library edition record for <em>Fantastic Mr. Fox</em> by Roald Dahl (<a href="https://openlibrary.org/books/OL7353617M.json">openlibrary.org/books/OL7353617M.json</a>) in a JSON formatter before writing any code.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-org">
+    <h2 id="h-org">Overall Organization</h2>
+    <p>The whole file is one JSON <strong>object</strong> wrapped in curly braces. That object represents one edition of one book, and every piece of information about it sits in a key at the top level. Some keys hold a single value, some hold lists, and a few hold small objects of their own. Nothing goes deeper than about three levels, so the record is wide rather than deep.</p>
+    <dl class="facts">
+      <div><dt>Main structure</dt><dd>One top level object describing a single book edition</dd></div>
+      <div><dt>Main keys</dt><dd><code>title</code>, <code>authors</code>, <code>publishers</code>, <code>publish_date</code>, <code>number_of_pages</code>, <code>isbn_10</code>, <code>isbn_13</code>, <code>covers</code>, <code>first_sentence</code>, <code>works</code>, <code>key</code></dd></div>
+      <div><dt>Simple values</dt><dd>Text: <code>title</code>, <code>publish_date</code>, <code>key</code>, <code>ocaid</code>. Numbers: <code>number_of_pages</code>, <code>revision</code>, <code>latest_revision</code></dd></div>
+      <div><dt>Collections (arrays)</dt><dd><code>publishers</code>, <code>isbn_10</code>, <code>isbn_13</code>, <code>covers</code>, <code>contributions</code>, <code>source_records</code>, <code>local_id</code>, <code>authors</code>, <code>languages</code>, <code>works</code></dd></div>
+      <div><dt>Structured values (objects)</dt><dd><code>first_sentence</code>, <code>created</code>, <code>last_modified</code>, <code>type</code>, <code>identifiers</code>, <code>classifications</code></dd></div>
+      <div><dt>Nesting</dt><dd>Yes. <code>authors</code> is an array of objects, and <code>identifiers</code> is an object whose values are arrays.</dd></div>
+    </dl>
+  </section>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="h-nv">
+      <h2 id="h-nv">Name/Value Pair</h2>
+      <p>A key in quotes, a colon, and a value. This one holds a plain number.</p>
+      <pre><code>"number_of_pages": 96</code></pre>
+    </section>
+    <section class="card" aria-labelledby="h-obj">
+      <h2 id="h-obj">Object</h2>
+      <p>Curly braces holding name/value pairs. Open Library wraps the first sentence in an object that also records its type.</p>
+      <pre><code>"first_sentence": {
+  "type": "/type/text",
+  "value": "Down in the valley there were three farms."
+}</code></pre>
+    </section>
+    <section class="card" aria-labelledby="h-arr">
+      <h2 id="h-arr">Array</h2>
+      <p>Square brackets holding an ordered list. Even single values like the ISBN are stored this way so the field can hold more later.</p>
+      <pre><code>"covers": [15152634, 8739161, -1]
+"isbn_13": ["9780140328721"]</code></pre>
+    </section>
+    <section class="card" aria-labelledby="h-nest">
+      <h2 id="h-nest">Nested Structure</h2>
+      <p>Structures inside structures. <code>authors</code> is an array of objects, and <code>identifiers</code> is an object whose values are arrays.</p>
+      <pre><code>"authors": [
+  { "key": "/authors/OL34184A" }
+],
+"identifiers": {
+  "goodreads": ["1507552"],
+  "librarything": ["6446"]
+}</code></pre>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="h-take">
+    <h2 id="h-take">What Stood Out</h2>
+    <p>The author's name isn't in the record at all. <code>authors</code> only holds a key that points to a separate author record, so showing "Roald Dahl" takes a second lookup. A lot of single values also come wrapped in arrays or small objects, so any code reading this file has to check the shape of each field before using it.</p>
+  </section>
+
+</main>
+<footer>
+  <p>Lab 3: JSON, Exercise 1 | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab3">Back to Lab 3: JSON</a></p>
+</footer>
+<script>
+
+</script>
+</body>
+</html>

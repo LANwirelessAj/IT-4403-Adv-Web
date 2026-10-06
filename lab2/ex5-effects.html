@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jQuery Visual Effects | Lab 2: jQuery | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+
+  .stage { min-height:260px; background:var(--bg); border:1px dashed var(--line); border-radius:8px; padding:1rem; overflow:hidden; margin-top:1rem; }
+  #result { border:3px solid var(--text); text-align:center; width:400px; max-width:100%; padding:1rem; border-radius:4px; position:relative; }
+  .speed-row { max-width:220px; }
+  .file-links { margin-top:.6rem; font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab2">Lab 2: jQuery</a></li>
+      <li aria-current="page">Exercise 5</li>
+    </ol>
+  </nav>
+  <h1>Exercise 5: jQuery Visual Effects</h1>
+  <p class="lead">Built from the instructor's jquery-effects.html example, then fixed and extended.</p>
+  <section class="card" aria-labelledby="h-fx">
+    <h2 id="h-fx">Effects</h2>
+    <h3>From the original example</h3>
+    <div class="controls">
+      <button id="change1">Hide</button>
+      <button id="change2">Show</button>
+      <button id="change3">Toggle</button>
+      <button id="change4">Slide</button>
+      <button id="change5">Fade</button>
+    </div>
+    <h3>Fade and slide extensions</h3>
+    <div class="controls">
+      <button class="alt" data-fx="fadeOut">Fade out</button>
+      <button class="alt" data-fx="fadeIn">Fade in</button>
+      <button class="alt" data-fx="fadeToggle">Fade toggle</button>
+      <button class="alt" data-fx="fadeTo">Fade to 30%</button>
+      <button class="alt" data-fx="slideUp">Slide up</button>
+      <button class="alt" data-fx="slideDown">Slide down</button>
+      <button class="alt" data-fx="slideToggle">Slide toggle</button>
+    </div>
+    <h3>Style and animation extensions</h3>
+    <div class="controls">
+      <button class="alt" data-fx="color">Random color</button>
+      <button class="alt" data-fx="size">Random size</button>
+      <button class="alt" data-fx="border">Random border</button>
+      <button class="alt" data-fx="animate">Animate</button>
+      <button class="alt" data-fx="chain">Chain effects</button>
+      <button data-fx="reset">Reset</button>
+    </div>
+    <div class="speed-row">
+      <label for="speed">Effect speed</label>
+      <select id="speed">
+        <option value="fast">Fast</option>
+        <option value="400" selected>Normal</option>
+        <option value="slow">Slow</option>
+      </select>
+    </div>
+    <div class="stage">
+      <div id="result">
+        jQuery is a lightweight, "write less, do more", JavaScript library.
+        The purpose of jQuery is to make it much easier to use JavaScript on your website.
+        jQuery takes a lot of common tasks that require many lines of JavaScript code to accomplish, and wraps them into methods that you can call with a single line of code.
+        jQuery also simplifies a lot of the complicated things from JavaScript, like AJAX calls and DOM manipulation.
+      </div>
+    </div>
+    <div class="out" id="last" aria-live="polite">Pick an effect.</div>
+  </section>
+  <section class="card" aria-labelledby="h-chg">
+    <h2 id="h-chg">What I Changed from the Starting Example</h2>
+    <p>I kept the instructor's five buttons and the jQuery paragraph as the target, then built on top of it.</p>
+    <p><strong>Fixed:</strong> The original file defines <code>changeColor()</code> and <code>changeBorder()</code>, but they call <code>getRandomColorCode()</code>, which doesn't exist in that file, and no buttons use them. I added the missing function and wired all three style functions to buttons. I also converted <code>changeBorder()</code> to jQuery's <code>.css()</code>.</p>
+    <p><strong>Added:</strong> Separate fade and slide controls (<code>fadeOut</code>, <code>fadeIn</code>, <code>fadeToggle</code>, <code>fadeTo</code>, <code>slideUp</code>, <code>slideDown</code>, <code>slideToggle</code>), a custom <code>animate()</code>, a chained sequence, a speed picker, and a reset button. Every effect calls <code>.stop(true, true)</code> first, so rapid clicking doesn't pile up a queue of animations.</p>
+    <p class="file-links"><a href="instructor-examples/jquery-effects.html">View the original instructor example</a></p>
+  </section>
+
+</main>
+<footer>
+  <p>Lab 2: jQuery, Exercise 5 | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab2">Back to Lab 2: jQuery</a></p>
+</footer>
+<script>
+$(document).ready(function () {
+  var $r = $("#result");
+  function speed() { var v = $("#speed").val(); return isNaN(v) ? v : Number(v); }
+  function report(text) { $("#last").html(text); }
+
+  // Original five buttons from the instructor example (speed added)
+  $("#change1").click(function () { $r.stop(true, true).hide(speed()); report("Ran <code>.hide()</code>"); });
+  $("#change2").click(function () { $r.stop(true, true).show(speed()); report("Ran <code>.show()</code>"); });
+  $("#change3").click(function () { $r.stop(true, true).toggle(speed()); report("Ran <code>.toggle()</code>"); });
+  $("#change4").click(function () { $r.stop(true, true).hide().slideDown(speed()); report("Ran <code>.hide().slideDown()</code>"); });
+  $("#change5").click(function () { $r.stop(true, true).hide().fadeIn(speed()); report("Ran <code>.hide().fadeIn()</code>"); });
+
+  // Missing from the original file, so changeColor() and changeBorder() could never run
+  function getRandomColorCode() {
+    var red = Math.floor(Math.random() * 256);
+    var green = Math.floor(Math.random() * 256);
+    var blue = Math.floor(Math.random() * 256);
+    return "rgb(" + red + "," + green + "," + blue + ")";
+  }
+  function changeColor() { $r.css("background-color", getRandomColorCode()); }
+  function changeSize() {
+    var h = Math.floor(Math.random() * 100) + 150;
+    var w = Math.floor(Math.random() * 200) + 250;
+    $r.css({ height: h + "px", width: w + "px", overflow: "auto" });
+  }
+  function changeBorder() {
+    var w = Math.floor(Math.random() * 20) + 5;
+    $r.css({ borderWidth: w + "px", borderColor: getRandomColorCode() });
+  }
+
+  var fx = {
+    fadeOut: function () { $r.fadeOut(speed()); },
+    fadeIn: function () { $r.fadeIn(speed()); },
+    fadeToggle: function () { $r.fadeToggle(speed()); },
+    fadeTo: function () { $r.show().fadeTo(speed(), 0.3); },
+    slideUp: function () { $r.slideUp(speed()); },
+    slideDown: function () { $r.slideDown(speed()); },
+    slideToggle: function () { $r.slideToggle(speed()); },
+    color: function () { $r.show(); changeColor(); },
+    size: function () { $r.show(); changeSize(); },
+    border: function () { $r.show(); changeBorder(); },
+    animate: function () {
+      $r.show().css("opacity", 1)
+        .animate({ left: "+=80px", fontSize: "1.15rem" }, speed())
+        .animate({ left: "0px", fontSize: "1rem" }, speed());
+    },
+    chain: function () {
+      $r.show().css("opacity", 1).slideUp(speed()).slideDown(speed()).fadeOut(speed()).fadeIn(speed());
+    },
+    reset: function () { $r.removeAttr("style"); }
+  };
+
+  $("[data-fx]").click(function () {
+    var name = $(this).data("fx");
+    $r.stop(true, true);
+    fx[name]();
+    report(name === "reset" ? "Box reset." : "Ran <strong>" + $(this).text() + "</strong>");
+  });
+});
+</script>
+</body>
+</html>
