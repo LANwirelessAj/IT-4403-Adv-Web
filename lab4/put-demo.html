@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTTP PUT Demo | Lab 4: RESTful Web APIs | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+
+
+  .status { padding:1rem 1.25rem; background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; margin-bottom:1.5rem; }
+  .status.error { border-left-color:var(--bad); }
+  .status.error strong { color:var(--bad); }
+  .endpoint { font-size:.9rem; color:var(--muted); margin-top:.75rem; overflow-wrap:anywhere; }
+  .flow { display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; font-size:.9rem; }
+  .flow span { background:var(--panel2); border:1px solid var(--line); border-radius:999px; padding:.15rem .7rem; }
+  .flow b { color:var(--muted); font-weight:400; }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab4">Lab 4: RESTful Web APIs</a></li>
+      <li aria-current="page">PUT Demo</li>
+    </ol>
+  </nav>
+  <h1>HTTP PUT Demo with jQuery AJAX</h1>
+  <p class="lead">A working version of the instructor&rsquo;s <code>jsonplaceholder-addcomment.html</code> example.</p>
+  <section class="card" aria-labelledby="h-req">
+    <h2 id="h-req">Request</h2>
+    <p>This sends a <code>PUT</code> request to <code>https://jsonplaceholder.typicode.com/posts/1</code> with jQuery&rsquo;s <code>$.ajax()</code>, replacing post 1 with new values.</p>
+    <pre><code id="sent"></code></pre>
+    <div class="controls"><button type="button" id="send">Send PUT request</button></div>
+  </section>
+  <section class="card" aria-labelledby="h-res">
+    <h2 id="h-res">Response</h2>
+    <div class="out" id="result" aria-live="polite"><span class="muted">Select the button to send the request. The response also prints to the browser Console.</span></div>
+    <p class="muted" style="margin-top:.75rem">JSONPlaceholder is a fake API, so it answers as if the update worked but nothing is actually saved. Loading post 1 again still returns the original data.</p>
+  </section>
+  <section class="card" aria-labelledby="h-fix">
+    <h2 id="h-fix">Changes from the instructor example</h2>
+    <p><strong>Fixed:</strong> The original requested <code>http://</code>. This site runs on HTTPS, so the browser blocks that request as mixed content and nothing happens. I switched it to <code>https://</code>.</p>
+    <p><strong>Updated:</strong> jQuery 2.1.4 to 3.7.1 to match the rest of the site, and sent the data as JSON with a <code>Content-Type</code> header.</p>
+    <p><strong>Added:</strong> The response now shows on the page with its HTTP status, not only in the Console, plus an error message if the request fails. The file was named &ldquo;addcomment&rdquo; but it updates a post with <code>PUT</code>, so the page is labeled to match what it does.</p>
+    <p class="endpoint"><a href="instructor-examples/jsonplaceholder-addcomment.html">View the original instructor example</a> (its <code>http://</code> request is blocked on this HTTPS site)</p>
+  </section>
+</main>
+<footer>
+  <p>Lab 4: RESTful Web APIs, PUT Demo | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab4">Back to Lab 4: RESTful Web APIs</a></p>
+</footer>
+<script>
+$(function () {
+  var payload = { id: 1, title: "foo", body: "bar", userId: 1 };
+  $("#sent").text("PUT /posts/1\n" + JSON.stringify(payload, null, 2));
+
+  $("#send").on("click", function () {
+    var $btn = $(this).prop("disabled", true).text("Sending...");
+    $.ajax("https://jsonplaceholder.typicode.com/posts/1", {
+      method: "PUT",
+      contentType: "application/json; charset=UTF-8",
+      data: JSON.stringify(payload)
+    }).done(function (data, textStatus, xhr) {
+      console.log(data);
+      $("#result").html('<span class="ok">HTTP ' + xhr.status + " " + xhr.statusText + "</span>")
+        .append($("<pre>").text(JSON.stringify(data, null, 2)));
+    }).fail(function (xhr) {
+      $("#result").html('<span class="err">The request failed (HTTP ' + (xhr.status || "no response") + ").</span>");
+    }).always(function () {
+      $btn.prop("disabled", false).text("Send PUT request");
+    });
+  });
+});
+</script>
+</body>
+</html>

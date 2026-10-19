@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book Details | Milestone 2 | Lawrence Ajayi</title>
+  <meta name="description" content="Details for a book from Open Library.">
+  <link rel="stylesheet" href="css/milestone2.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header>
+    <div class="nav-container">
+      <a class="site-title" href="index.html">Book Search <span>| Lawrence Ajayi</span></a>
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="bookshelf.html">My Bookshelf</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <a id="backLink" class="back-link" href="index.html">&larr; Back</a>
+
+    <div id="status" aria-live="polite"></div>
+
+    <article id="bookView" class="detail" hidden>
+      <div id="detailCover" class="detail-cover"></div>
+
+      <div class="detail-info">
+        <h1 id="detailTitle" class="detail-title"></h1>
+        <p id="detailSubtitle" class="detail-subtitle" hidden></p>
+        <p id="detailAuthors" class="detail-authors"></p>
+
+        <dl class="facts">
+          <dt>Work ID</dt>
+          <dd id="detailWorkId"></dd>
+          <dt>First published</dt>
+          <dd id="detailPublished"></dd>
+        </dl>
+
+        <h2>Description</h2>
+        <div id="detailDescription" class="description"></div>
+
+        <h2>Subjects</h2>
+        <ul id="detailSubjects" class="subject-list"></ul>
+
+        <div class="detail-actions">
+          <a id="detailLink" class="btn" href="https://openlibrary.org" target="_blank" rel="noopener">View on Open Library</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <p>Book data and covers from <a href="https://openlibrary.org" target="_blank" rel="noopener">Open Library</a>. IT 4403 Individual Project, Milestone 2.</p>
+    <p><a href="../index.html">Back to my course site</a></p>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/details.js"></script>
+</body>
+</html>

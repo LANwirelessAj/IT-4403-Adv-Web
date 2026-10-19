@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Library: Data Analysis Books | Lab 5: Open Library APIs | Lawrence Ajayi</title>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+
+
+  .status { padding:1rem 1.25rem; background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; margin-bottom:1.5rem; }
+  .status.error { border-left-color:var(--bad); }
+  .status.error strong { color:var(--bad); }
+  .endpoint { font-size:.9rem; color:var(--muted); margin-top:.75rem; overflow-wrap:anywhere; }
+  .flow { display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; font-size:.9rem; }
+  .flow span { background:var(--panel2); border:1px solid var(--line); border-radius:999px; padding:.15rem .7rem; }
+  .flow b { color:var(--muted); font-weight:400; }
+  table td:first-child { color:var(--muted); width:3rem; }
+  .year-missing { color:var(--muted); font-style:italic; }
+  .param-table td:first-child { color:var(--text); width:auto; }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab5">Lab 5: Open Library APIs</a></li>
+      <li aria-current="page">Lab 5</li>
+    </ol>
+  </nav>
+  <h1>Open Library: Data Analysis Books</h1>
+  <p class="lead">Live book data from the Open Library Search API, requested with <code>fetch()</code> and displayed with a loop. The search term and limit are set in the request URL.</p>
+  <section class="card" aria-label="Search results">
+    <p class="muted" id="summary">Loading books from Open Library...</p>
+    <div id="results" style="overflow-x:auto; margin-top:1rem"></div>
+    <p class="endpoint">Request: <code id="endpoint"></code></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-params">
+    <h2 id="h-params">What I learned testing the URLs (Parts 1 and 3)</h2>
+    <div style="overflow-x:auto">
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>What it does</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>q</code></td><td>The search term. Changing <code>data%20analysis</code> to <code>web%20development</code> changed every book on this page.</td><td><code>q=data%20analysis</code></td></tr>
+          <tr><td><code>limit</code></td><td>How many results come back. Changing it from 10 to 5 cut the list to 5 books.</td><td><code>limit=10</code></td></tr>
+          <tr><td><code>page</code></td><td>Which page of results to return. Pages start at 1, so page 2 with a limit of 10 is results 11 to 20.</td><td><code>page=2</code></td></tr>
+          <tr><td><code>offset</code></td><td>How many results to skip. An offset of 30 with a limit of 30 returns results 31 to 60.</td><td><code>offset=30</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:1rem">A search response wraps its books in the <code>docs</code> array, and each one has a <code>key</code> like <code>/works/OL45804W</code>. Adding <code>.json</code> to that key gives the work record URL, <code>https://openlibrary.org/works/OL45804W.json</code>, which describes one book instead of a list.</p>
+  </section>
+</main>
+<footer>
+  <p>Lab 5: Open Library APIs | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab5">Back to Lab 5: Open Library APIs</a></p>
+</footer>
+<script>
+// Lab 5: fixed search for "data analysis", 10 results, live from Open Library
+const ENDPOINT = "https://openlibrary.org/search.json?q=data%20analysis&limit=10";
+const results = document.getElementById("results");
+const summary = document.getElementById("summary");
+const SEARCH_TERM = new URL(ENDPOINT).searchParams.get("q");   // read the term from the request URL, not hardcoded
+document.getElementById("endpoint").textContent = ENDPOINT;
+
+// Escape text from the API before it goes into HTML
+function esc(value) {
+  const div = document.createElement("div");
+  div.textContent = String(value ?? "");
+  return div.innerHTML;
+}
+
+fetch(ENDPOINT)
+  .then(response => {
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    return response.json();
+  })
+  .then(data => {
+    console.log(data.docs);
+    const docs = data.docs || [];
+
+    if (docs.length === 0) {
+      summary.textContent = "Open Library returned no books for this search.";
+      return;
+    }
+
+    // Loop through the docs array and build one table row per book
+    let rows = "";
+    for (let i = 0; i < docs.length; i++) {
+      const book = docs[i];
+      const year = book.first_publish_year
+        ? esc(book.first_publish_year)
+        : '<span class="year-missing">Year unavailable</span>';
+      rows += "<tr><td>" + (i + 1) + "</td><td>" + esc(book.title || "Untitled") + "</td><td>" + year + "</td></tr>";
+    }
+
+    results.innerHTML =
+      "<table><thead><tr><th>#</th><th>Title</th><th>First published</th></tr></thead>" +
+      "<tbody>" + rows + "</tbody></table>";
+    summary.textContent = "Showing " + docs.length + " of " + Number(data.numFound || docs.length).toLocaleString() +
+      " books Open Library found for \"" + SEARCH_TERM + "\".";
+  })
+  .catch(error => {
+    summary.innerHTML = '<span class="err">Could not load books from Open Library (' + esc(error.message) + "). Refresh the page to try again.</span>";
+  });
+</script>
+</body>
+</html>

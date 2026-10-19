@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book Search | Milestone 2 | Lawrence Ajayi</title>
+  <meta name="description" content="Search the Open Library catalog for books.">
+  <link rel="stylesheet" href="css/milestone2.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header>
+    <div class="nav-container">
+      <a class="site-title" href="index.html">Book Search <span>| Lawrence Ajayi</span></a>
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="index.html" aria-current="page">Home</a></li>
+          <li><a href="bookshelf.html">My Bookshelf</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="search-hero">
+      <h1>Find your next book</h1>
+      <p class="intro">Search the Open Library catalog by title, author, or topic.</p>
+
+      <form id="searchForm" class="search-form" role="search" novalidate>
+        <label for="searchInput" class="visually-hidden">Search terms</label>
+        <input id="searchInput" type="search" placeholder="Try &ldquo;data analysis&rdquo; or &ldquo;Octavia Butler&rdquo;" autocomplete="off">
+        <button type="submit" id="searchButton">Search</button>
+      </form>
+
+      <p class="suggestions">
+        <span>Try:</span>
+        <button type="button" class="chip" data-q="network security">network security</button>
+        <button type="button" class="chip" data-q="data analysis">data analysis</button>
+        <button type="button" class="chip" data-q="military history">military history</button>
+        <button type="button" class="chip" data-q="Toni Morrison">Toni Morrison</button>
+      </p>
+    </section>
+
+    <section id="resultsArea" aria-label="Search results">
+      <div id="status" aria-live="polite"></div>
+
+      <div id="resultsBar" class="results-bar" hidden>
+        <p id="summary" aria-live="polite"></p>
+        <div id="pager" class="pager">
+          <button type="button" id="prevPage" aria-label="Previous page">Previous</button>
+          <label for="pageSelect">Page</label>
+          <select id="pageSelect"></select>
+          <span>of <span id="pageCount">1</span></span>
+          <button type="button" id="nextPage" aria-label="Next page">Next</button>
+        </div>
+      </div>
+
+      <ol id="results" class="book-grid"></ol>
+    </section>
+  </main>
+
+  <footer>
+    <p>Book data and covers from <a href="https://openlibrary.org" target="_blank" rel="noopener">Open Library</a>. IT 4403 Individual Project, Milestone 2.</p>
+    <p><a href="../index.html">Back to my course site</a></p>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/search.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Bookshelf | Milestone 2 | Lawrence Ajayi</title>
+  <meta name="description" content="A personal bookshelf of favorite books from Open Library.">
+  <link rel="stylesheet" href="css/milestone2.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header>
+    <div class="nav-container">
+      <a class="site-title" href="index.html">Book Search <span>| Lawrence Ajayi</span></a>
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="bookshelf.html" aria-current="page">My Bookshelf</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-head">
+      <h1>My Bookshelf</h1>
+      <p class="intro">Books on web development and security, plus one childhood favorite. Select any title to see its full details.</p>
+      <p id="shelfCount" class="shelf-count"></p>
+    </section>
+
+    <div id="status" aria-live="polite"></div>
+
+    <ul id="shelf" class="book-grid shelf"></ul>
+  </main>
+
+  <footer>
+    <p>Book data and covers from <a href="https://openlibrary.org" target="_blank" rel="noopener">Open Library</a>. IT 4403 Individual Project, Milestone 2.</p>
+    <p><a href="../index.html">Back to my course site</a></p>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/bookshelf.js"></script>
+</body>
+</html>
