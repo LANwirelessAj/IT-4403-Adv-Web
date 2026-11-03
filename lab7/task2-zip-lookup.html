@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task 2: ZIP Code Lookup with CORS | Lab 7: AJAX REST and CORS | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+  .search-row { display:flex; gap:.5rem; margin:1rem 0; max-width:34rem; }
+  .search-row input { flex:1; }
+  .status { margin-top:.5rem; }
+  .status.err { border-left-color:var(--bad); }
+  .status.warn { border-left-color:#fbbf24; }
+  .results { list-style:none; margin-top:1rem; }
+  .results li { padding:.7rem 0; border-bottom:1px solid var(--line); }
+  .results li:last-child { border-bottom:0; }
+  .na { color:var(--muted); font-style:italic; }
+  input.invalid { border-color:var(--bad); }
+  .cors dd code { word-break:break-all; }
+.sr{position:absolute;left:-9999px} .methods{border:1px solid var(--line);border-radius:6px;padding:.6rem 1rem;margin:.5rem 0 0;max-width:34rem} .methods legend{color:var(--muted);font-size:.9rem;padding:0 .3rem} .methods label{display:flex;align-items:center;gap:.5rem;color:var(--text);font-weight:500;margin:.3rem 0} .methods input{width:auto}</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab7">Lab 7: AJAX REST and CORS</a></li>
+      <li aria-current="page">Task 2</li>
+    </ol>
+  </nav>
+  <h1>Task 2: ZIP Code Lookup with CORS</h1>
+  <p class="lead">The same ZIP code lookup three ways: fetch(), $.ajax(), and $.getJSON().</p>
+  <section class="card" aria-labelledby="h-z">
+    <h2 id="h-z">Look Up a U.S. ZIP Code</h2>
+    <form id="zipForm" novalidate>
+      <div class="search-row">
+        <label for="zip" class="sr">Five-digit ZIP code</label>
+        <input id="zip" type="text" inputmode="numeric" maxlength="5" placeholder="e.g. 30144" autocomplete="postal-code">
+      </div>
+      <fieldset class="methods">
+        <legend>Request method</legend>
+        <label><input type="radio" name="method" value="fetch" checked> Plain JavaScript <code>fetch()</code></label>
+        <label><input type="radio" name="method" value="ajax"> jQuery <code>$.ajax()</code></label>
+        <label><input type="radio" name="method" value="getJSON"> jQuery <code>$.getJSON()</code></label>
+      </fieldset>
+      <div class="controls"><button id="go">Look Up ZIP</button></div>
+    </form>
+    <div id="status" aria-live="polite"></div>
+    <div id="result"></div>
+  </section>
+  <section class="card cors" aria-labelledby="h-cors">
+    <h2 id="h-cors">Cross-Origin Observations</h2>
+    <p class="muted">Filled in live after each request.</p>
+    <dl class="facts">
+      <div><dt>My origin</dt><dd id="c-origin" class="na">Run a request</dd></div>
+      <div><dt>API origin</dt><dd id="c-dest" class="na">Run a request</dd></div>
+      <div><dt>Cross-origin?</dt><dd id="c-cross" class="na">Run a request</dd></div>
+      <div><dt>Method</dt><dd id="c-method" class="na">Run a request</dd></div>
+      <div><dt>Status</dt><dd id="c-status" class="na">Run a request</dd></div>
+      <div><dt>Content-Type</dt><dd id="c-type" class="na">Run a request</dd></div>
+      <div><dt>Request URL</dt><dd><code id="c-url" class="na">Run a request</code></dd></div>
+      <div><dt>Access-Control-Allow-Origin</dt><dd>Check it in DevTools: <strong>Network</strong> tab, click the request to <code>api.zippopotam.us</code>, then <strong>Response Headers</strong>. Zippopotam.us sends <code>access-control-allow-origin: *</code>, which is why plain JSON works here without JSONP.</dd></div>
+    </dl>
+  </section>
+
+  <section class="card" aria-labelledby="h-how">
+    <h2 id="h-how">How the Three Methods Compare</h2>
+    <dl class="facts">
+      <div><dt>fetch()</dt><dd>Built into the browser. A 404 does not reject the promise, so the code has to check <code>response.ok</code> before calling <code>response.json()</code>.</dd></div>
+      <div><dt>$.ajax()</dt><dd>The full jQuery method. A 404 goes straight to <code>.fail()</code>, and options like <code>timeout</code> and <code>dataType</code> are set in one object.</dd></div>
+      <div><dt>$.getJSON()</dt><dd>A shortcut for <code>$.ajax()</code> with <code>dataType: "json"</code>. Shortest to write, with fewer options.</dd></div>
+    </dl>
+    <p>The API's keys have spaces (<code>post code</code>, <code>place name</code>, <code>state abbreviation</code>), so dot notation won't work. The code uses bracket notation like <code>place["place name"]</code>. The <code>places</code> array is looped in full, since some ZIP codes cover more than one place. The ZIP is read as text so leading zeros like <code>02134</code> aren't lost.</p>
+  </section>
+
+</main>
+<footer>
+  <p>Lab 7: AJAX REST and CORS, Task 2 | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab7">Back to Lab 7: AJAX REST and CORS</a></p>
+</footer>
+<script>
+
+// Fills the Cross-Origin Observations card after each request.
+// Access-Control-Allow-Origin can't be read from JavaScript (browsers hide it),
+// so that row points to the Network tab in Developer Tools.
+function showCors(url, method, status, contentType) {
+  var dest = new URL(url);
+  $(".cors .na").removeClass("na");
+  $("#c-origin").text(location.origin);
+  $("#c-dest").text(dest.origin);
+  $("#c-cross").text(location.origin === dest.origin ? "No (same origin)" : "Yes, cross-origin request");
+  $("#c-method").text(method);
+  $("#c-status").text(status || "No response");
+  $("#c-type").text(contentType || "Not available");
+  $("#c-url").text(url);
+}
+
+$(function () {
+  var API = "https://api.zippopotam.us/us/";
+  var busy = false;
+
+  $("#zipForm").on("submit", function (e) {
+    e.preventDefault();
+    if (busy) return;
+    var zip = $.trim($("#zip").val());          // kept as text to preserve leading zeros
+    if (!/^\d{5}$/.test(zip)) {
+      $("#zip").addClass("invalid").focus();
+      $("#result").empty();
+      $("#status").html('<div class="out status warn">' + (zip ? '"' + $("<i>").text(zip).html() + '" is not valid. ' : "") + 'Enter exactly five digits, like 30144.</div>');
+      return;
+    }
+    $("#zip").removeClass("invalid");
+    lookup(zip, $("input[name=method]:checked").val());
+  });
+
+  function lookup(zip, method) {
+    busy = true;
+    var url = API + zip;
+    var label = { fetch: "fetch()", ajax: "$.ajax()", getJSON: "$.getJSON()" }[method];
+    $("#go").prop("disabled", true).text("Looking up...");
+    $("#result").empty();
+    $("#status").html('<div class="out status">Looking up ' + zip + ' with ' + label + '...</div>');
+
+    var request;
+    if (method === "fetch") {
+      // Plain JavaScript. fetch() only rejects on network errors, so check response.ok.
+      request = fetch(url).then(function (response) {
+        showCors(url, "GET", response.status + " " + response.statusText, response.headers.get("Content-Type"));
+        if (response.status === 404) throw { notFound: true };
+        if (!response.ok) throw { status: response.status };
+        return response.json();
+      });
+    } else if (method === "ajax") {
+      request = $.ajax({ url: url, dataType: "json", timeout: 10000 })
+        .then(function (data, t, xhr) {
+          showCors(url, "GET", xhr.status + " " + xhr.statusText, xhr.getResponseHeader("Content-Type"));
+          return data;
+        }, function (xhr, textStatus) {
+          showCors(url, "GET", xhr.status ? xhr.status + " " + xhr.statusText : textStatus, null);
+          return $.Deferred().reject(xhr.status === 404 ? { notFound: true } : { status: xhr.status || textStatus });
+        });
+    } else {
+      request = $.getJSON(url)
+        .then(function (data, t, xhr) {
+          showCors(url, "GET", xhr.status + " " + xhr.statusText, xhr.getResponseHeader("Content-Type"));
+          return data;
+        }, function (xhr, textStatus) {
+          showCors(url, "GET", xhr.status ? xhr.status + " " + xhr.statusText : textStatus, null);
+          return $.Deferred().reject(xhr.status === 404 ? { notFound: true } : { status: xhr.status || textStatus });
+        });
+    }
+
+    // jQuery promises and fetch promises both support .then(), so one handler covers all three
+    Promise.resolve(request)
+      .then(function (data) { render(data, zip, label); })
+      .catch(function (err) {
+        if (err && err.notFound) {
+          $("#status").html('<div class="out status warn">ZIP code ' + zip + ' was not found. Check the number and try again.</div>');
+        } else {
+          $("#status").html('<div class="out status err">The lookup failed (' + ((err && err.status) || "network error") + '). Try again in a moment.</div>');
+        }
+      })
+      .then(function () { busy = false; $("#go").prop("disabled", false).text("Look Up ZIP"); });
+  }
+
+  function render(data, zip, label) {
+    var places = (data && Array.isArray(data.places)) ? data.places : [];
+    if (!places.length) {
+      $("#status").html('<div class="out status warn">ZIP code ' + zip + ' returned no places.</div>');
+      return;
+    }
+    $("#status").html('<p class="muted">Loaded with ' + label + '. ' + places.length + ' place' + (places.length === 1 ? "" : "s") + ' found.</p>');
+
+    var $dl = $('<dl class="facts">')
+      .append('<div><dt>ZIP code</dt><dd>' + $("<i>").text(data["post code"] || zip).html() + '</dd></div>')
+      .append('<div><dt>Country</dt><dd>' + $("<i>").text(data.country || "Not listed").html() +
+              (data["country abbreviation"] ? " (" + $("<i>").text(data["country abbreviation"]).html() + ")" : "") + '</dd></div>');
+
+    var $table = $('<table><thead><tr><th>Place name</th><th>State</th><th>Abbreviation</th><th>Latitude, Longitude</th></tr></thead><tbody></tbody></table>');
+    $.each(places, function (i, place) {
+      var coords = place.latitude && place.longitude ? place.latitude + ", " + place.longitude : "Not listed";
+      $("<tr>")
+        .append($("<td>").text(place["place name"] || "Not listed"))
+        .append($("<td>").text(place.state || "Not listed"))
+        .append($("<td>").text(place["state abbreviation"] || "Not listed"))
+        .append($("<td>").text(coords))
+        .appendTo($table.find("tbody"));
+    });
+    $("#result").append($dl, $('<div style="overflow-x:auto;margin-top:1rem">').append($table));
+  }
+
+  $("#zip").on("input", function () { $(this).removeClass("invalid"); });
+});
+</script>
+</body>
+</html>

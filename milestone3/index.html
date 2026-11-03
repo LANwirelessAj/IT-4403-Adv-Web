@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open Library Book Explorer | Milestone 3 | Lawrence Ajayi</title>
+  <meta name="description" content="Search Open Library, page through results, view book details, and browse a science fiction collection on one page.">
+  <link rel="stylesheet" href="css/milestone3.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header>
+    <div class="nav-container">
+      <span class="site-title">Book Explorer <span>| Lawrence Ajayi</span></span>
+      <nav aria-label="Jump to section">
+        <ul>
+          <li><a href="#searchSection">Search</a></li>
+          <li><a href="#detailsPanel">Details</a></li>
+          <li><a href="#collectionSection">Collection</a></li>
+          <li><a href="../index.html">Course Site</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============ 1. SEARCH INPUT ============ -->
+    <section id="searchSection" class="search-hero" aria-labelledby="searchHeading">
+      <h1 id="searchHeading">Find your next book</h1>
+      <p class="intro">Search Open Library by title or keyword. Select any book to see its details without leaving this page.</p>
+
+      <form id="searchForm" class="search-form" role="search" novalidate>
+        <label for="searchInput" class="visually-hidden">Title or keywords</label>
+        <input id="searchInput" type="search" maxlength="100" placeholder="Try &ldquo;network security&rdquo; or &ldquo;Dune&rdquo;" autocomplete="off">
+        <button type="submit" id="searchButton">Search</button>
+      </form>
+      <div id="searchStatus" aria-live="polite"></div>
+    </section>
+
+    <div class="workspace">
+      <!-- ============ 2. SEARCH RESULTS + 3. PAGINATION ============ -->
+      <section id="resultsSection" class="panel" aria-labelledby="resultsHeading">
+        <div class="panel-head">
+          <h2 id="resultsHeading">Search Results</h2>
+          <p id="pageIndicator" class="page-indicator" aria-live="polite" hidden></p>
+        </div>
+        <p id="resultsSummary" class="summary" hidden></p>
+        <div id="resultsStatus" aria-live="polite">
+          <div class="message message-info" role="status">
+            <p class="message-heading">No search yet</p>
+            <p class="message-text">Results will appear here, 10 books per page.</p>
+          </div>
+        </div>
+        <ol id="results" class="book-grid" aria-busy="false"></ol>
+        <nav id="pager" class="pager" aria-label="Search results pages" hidden></nav>
+      </section>
+
+      <!-- ============ 4. SELECTED-BOOK DETAILS ============ -->
+      <aside id="detailsPanel" class="panel details-panel" aria-labelledby="detailsHeading" tabindex="-1">
+        <div class="panel-head">
+          <h2 id="detailsHeading">Book Details</h2>
+        </div>
+        <div id="detailsStatus" aria-live="polite">
+          <div class="message message-info" role="status">
+            <p class="message-heading">No book selected</p>
+            <p class="message-text">Select a book from the search results or the collection to see its details here.</p>
+          </div>
+        </div>
+        <article id="details" class="details" hidden>
+          <div id="detailCover" class="detail-cover"></div>
+          <div class="detail-body">
+            <p id="detailSource" class="detail-source"></p>
+            <h3 id="detailTitle" class="detail-title"></h3>
+            <p id="detailAuthors" class="detail-authors"></p>
+            <dl class="facts">
+              <dt>Work ID</dt><dd id="detailWorkId"></dd>
+              <dt>First published</dt><dd id="detailPublished"></dd>
+            </dl>
+            <h4>Description</h4>
+            <div id="detailDescription" class="description"></div>
+            <h4>Subjects</h4>
+            <ul id="detailSubjects" class="subject-list"></ul>
+            <p class="detail-actions">
+              <a id="detailLink" class="btn" href="#" target="_blank" rel="noopener">View on Open Library <span class="visually-hidden">(opens in a new tab)</span></a>
+            </p>
+          </div>
+        </article>
+      </aside>
+    </div>
+
+    <!-- ============ 5. PREDEFINED COLLECTION ============ -->
+    <section id="collectionSection" class="panel collection" aria-labelledby="collectionHeading">
+      <div class="panel-head">
+        <h2 id="collectionHeading">Collection: Science Fiction</h2>
+        <p id="collectionCount" class="page-indicator"></p>
+      </div>
+      <p class="summary">Ten science fiction books from the Open Library subject catalog. Select one to see its details.</p>
+      <div id="collectionStatus" aria-live="polite"></div>
+      <ol id="collection" class="book-grid" aria-busy="false"></ol>
+    </section>
+  </main>
+
+  <footer>
+    <p>Book data and covers from <a href="https://openlibrary.org" target="_blank" rel="noopener">Open Library</a>. IT 4403 Individual Project, Milestone 3.</p>
+    <p><a href="../index.html">Back to my course site</a></p>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

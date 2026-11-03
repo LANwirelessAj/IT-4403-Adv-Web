@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task 1: Wikipedia Search Suggestions | Lab 7: AJAX REST and CORS | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+  .search-row { display:flex; gap:.5rem; margin:1rem 0; max-width:34rem; }
+  .search-row input { flex:1; }
+  .status { margin-top:.5rem; }
+  .status.err { border-left-color:var(--bad); }
+  .status.warn { border-left-color:#fbbf24; }
+  .results { list-style:none; margin-top:1rem; }
+  .results li { padding:.7rem 0; border-bottom:1px solid var(--line); }
+  .results li:last-child { border-bottom:0; }
+  .na { color:var(--muted); font-style:italic; }
+  input.invalid { border-color:var(--bad); }
+  .cors dd code { word-break:break-all; }
+.sr{position:absolute;left:-9999px}</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab7">Lab 7: AJAX REST and CORS</a></li>
+      <li aria-current="page">Task 1</li>
+    </ol>
+  </nav>
+  <h1>Task 1: Wikipedia Search Suggestions</h1>
+  <p class="lead">Up to five matching Wikipedia article titles, loaded with jQuery AJAX and linked to their articles.</p>
+  <section class="card" aria-labelledby="h-s">
+    <h2 id="h-s">Search Wikipedia Article Titles</h2>
+    <form id="wikiForm" class="search-row" novalidate>
+      <label for="term" class="sr">Word or partial term</label>
+      <input id="term" type="text" maxlength="100" placeholder="e.g. Kennesaw" autocomplete="off">
+      <button id="go">Get Suggestions</button>
+    </form>
+    <div id="status" aria-live="polite"></div>
+    <ol id="results" class="results"></ol>
+  </section>
+  <section class="card cors" aria-labelledby="h-cors">
+    <h2 id="h-cors">Cross-Origin Observations</h2>
+    <p class="muted">Filled in live after each request.</p>
+    <dl class="facts">
+      <div><dt>My origin</dt><dd id="c-origin" class="na">Run a request</dd></div>
+      <div><dt>API origin</dt><dd id="c-dest" class="na">Run a request</dd></div>
+      <div><dt>Cross-origin?</dt><dd id="c-cross" class="na">Run a request</dd></div>
+      <div><dt>Method</dt><dd id="c-method" class="na">Run a request</dd></div>
+      <div><dt>Status</dt><dd id="c-status" class="na">Run a request</dd></div>
+      <div><dt>Content-Type</dt><dd id="c-type" class="na">Run a request</dd></div>
+      <div><dt>Request URL</dt><dd><code id="c-url" class="na">Run a request</code></dd></div>
+      <div><dt>Access-Control-Allow-Origin</dt><dd>Check it in DevTools: <strong>Network</strong> tab, click the <code>api.php</code> request, then <strong>Response Headers</strong>. Because the request includes <code>origin=*</code>, Wikipedia should answer with <code>access-control-allow-origin: *</code>.</dd></div>
+    </dl>
+  </section>
+
+  <section class="card" aria-labelledby="h-how">
+    <h2 id="h-how">How the Response Is Read</h2>
+    <p>OpenSearch returns a JSON <strong>array</strong>, not an object. <code>data[0]</code> echoes the search term, <code>data[1]</code> holds the article titles, and <code>data[3]</code> holds the matching URLs. The loop uses the same index <code>i</code> on both arrays to pair each title with its link.</p>
+    <p><code>origin=*</code> is MediaWiki's own switch for anonymous cross-origin requests. Without it, Wikipedia doesn't send the CORS header and the browser blocks the response.</p>
+  </section>
+
+</main>
+<footer>
+  <p>Lab 7: AJAX REST and CORS, Task 1 | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab7">Back to Lab 7: AJAX REST and CORS</a></p>
+</footer>
+<script>
+
+// Fills the Cross-Origin Observations card after each request.
+// Access-Control-Allow-Origin can't be read from JavaScript (browsers hide it),
+// so that row points to the Network tab in Developer Tools.
+function showCors(url, method, status, contentType) {
+  var dest = new URL(url);
+  $(".cors .na").removeClass("na");
+  $("#c-origin").text(location.origin);
+  $("#c-dest").text(dest.origin);
+  $("#c-cross").text(location.origin === dest.origin ? "No (same origin)" : "Yes, cross-origin request");
+  $("#c-method").text(method);
+  $("#c-status").text(status || "No response");
+  $("#c-type").text(contentType || "Not available");
+  $("#c-url").text(url);
+}
+
+$(function () {
+  var API = "https://en.wikipedia.org/w/api.php";
+  var busy = false;
+
+  $("#wikiForm").on("submit", function (e) {
+    e.preventDefault();
+    if (busy) return;
+    var term = $.trim($("#term").val());
+    if (!term) {
+      $("#term").addClass("invalid").focus();
+      $("#results").empty();
+      $("#status").html('<div class="out status warn">Enter a word or part of a word first.</div>');
+      return;
+    }
+    $("#term").removeClass("invalid");
+    search(term);
+  });
+
+  function search(term) {
+    busy = true;
+    $("#go").prop("disabled", true).text("Searching...");
+    $("#results").empty();                                    // replace old suggestions
+    $("#status").html('<div class="out status">Loading suggestions for "' + $("<i>").text(term).html() + '"...</div>');
+
+    var params = { action: "opensearch", search: term, limit: 5, format: "json", origin: "*" };
+    var url = API + "?" + $.param(params);
+
+    $.ajax({ url: API, data: params, dataType: "json", timeout: 10000 })
+      .done(function (data, textStatus, xhr) {
+        showCors(url, "GET", xhr.status + " " + xhr.statusText, xhr.getResponseHeader("Content-Type"));
+        var titles = (data && data[1]) || [];
+        var links = (data && data[3]) || [];
+        if (!titles.length) {
+          $("#status").html('<div class="out status">No Wikipedia articles match "' + $("<i>").text(term).html() + '".</div>');
+          return;
+        }
+        $("#status").html('<p class="muted">' + titles.length + ' suggestion' + (titles.length === 1 ? "" : "s") + ' for "' + $("<i>").text(data[0]).html() + '"</p>');
+        for (var i = 0; i < titles.length; i++) {
+          var href = links[i] || "https://en.wikipedia.org/wiki/" + encodeURIComponent(titles[i].replace(/ /g, "_"));
+          $("<li>").append($("<a>").attr({ href: href, target: "_blank", rel: "noopener" }).text(titles[i])).appendTo("#results");
+        }
+      })
+      .fail(function (xhr, textStatus) {
+        showCors(url, "GET", xhr.status ? xhr.status + " " + xhr.statusText : textStatus, null);
+        $("#status").html('<div class="out status err">The request failed (' + (xhr.status || textStatus) + '). Wikipedia may be unreachable. Try again.</div>');
+      })
+      .always(function () { busy = false; $("#go").prop("disabled", false).text("Get Suggestions"); });
+  }
+});
+</script>
+</body>
+</html>
