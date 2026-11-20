@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exercise 2: Responsive Navigation Menu | Lab 11: Bootstrap | Lawrence Ajayi</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  :root, [data-bs-theme=dark] { --bs-body-bg:#0f172a; --bs-tertiary-bg:#1e293b; --bs-secondary-bg:#273449; --bs-border-color:#334155; --bs-link-color:#7dd3fc; --bs-link-hover-color:#bae6fd; --bs-link-color-rgb:125,211,252; }
+  .demo { background:#1e293b; border:1px solid #334155; border-radius:.5rem; padding:1rem; height:100%; }
+  .demo .tag { font:600 .75rem/1 Consolas,monospace; color:#7dd3fc; }
+  .grid-show [class*="col"] > .demo { min-height:5rem; }
+  .bp-badge span { display:none; }
+  .bp-badge .xs { display:inline; }
+  @media (min-width:576px)  { .bp-badge .xs { display:none; } .bp-badge .sm { display:inline; } }
+  @media (min-width:768px)  { .bp-badge .sm { display:none; } .bp-badge .md { display:inline; } }
+  @media (min-width:992px)  { .bp-badge .md { display:none; } .bp-badge .lg { display:inline; } }
+  @media (min-width:1200px) { .bp-badge .lg { display:none; } .bp-badge .xl { display:inline; } }
+  pre { background:#0b1222; border:1px solid #334155; border-radius:.5rem; padding:1rem; font-size:.8rem; }
+  section[id] { scroll-margin-top:5rem; }
+</style>
+</head>
+<body id="top">
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top" aria-label="Main navigation">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#top">KSU Book Nook</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+            aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#top">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#layout">Browse</a></li>
+        <li class="nav-item"><a class="nav-link" href="ex3-responsive-form.html#request">Request a Book</a></li>
+        <li class="nav-item"><a class="nav-link" href="ex4-responsive-table.html#requests">Requests</a></li>
+        <li class="nav-item"><a class="nav-link" href="../index.html">Course Site</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<main class="container py-4">
+  <nav aria-label="Breadcrumb">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+      <li class="breadcrumb-item"><a href="../index.html#lab11">Lab 11: Bootstrap</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Exercise 2</li>
+    </ol>
+  </nav>
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h2 mb-0">Exercise 2: Responsive Navigation Menu</h1>
+    <span class="badge text-bg-info bp-badge" title="Current Bootstrap breakpoint">Breakpoint:
+  <span class="xs">xs (&lt;576px)</span><span class="sm">sm (576px+)</span><span class="md">md (768px+)</span><span class="lg">lg (992px+)</span><span class="xl">xl (1200px+)</span></span>
+  </div>
+  <div class="alert alert-secondary small" role="note">
+    <strong>Continuing build:</strong> Exercise 1b's column drop layout plus a responsive navbar.
+  </div>
+  <section class="card mb-4"><div class="card-body">
+    <h2 class="h5">About the Navbar</h2>
+    <p class="mb-0 text-body-secondary"><code>navbar-expand-lg</code> keeps the five links in a row from 992px up. Below that they collapse behind the hamburger button, which uses Bootstrap's collapse plugin (from <code>bootstrap.bundle.min.js</code>) to open and close the menu. <code>sticky-top</code> keeps the bar visible while scrolling, and the button's <code>aria-expanded</code> and <code>aria-controls</code> tell screen readers what it opens.</p>
+  </div></section>
+  <section id="layout" class="mb-4" aria-labelledby="dropHead">
+    <h2 class="h4" id="dropHead">Column Drop Layout</h2>
+    <p class="text-body-secondary">Three columns sit side by side on large screens. At the <code>md</code> breakpoint the third column drops below the first two, and on phones all three stack.</p>
+    <div class="row g-3">
+      <div class="col-12 col-md-4 col-lg-3">
+        <div class="demo">
+          <div class="tag">.col-12 .col-md-4 .col-lg-3</div>
+          <h3 class="h6 mt-2">Browse</h3>
+          <ul class="list-unstyled small mb-0">
+            <li>Science fiction</li><li>History</li><li>Programming</li><li>Biography</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="demo">
+          <div class="tag">.col-12 .col-md-8 .col-lg-6</div>
+          <h3 class="h6 mt-2">Featured Book</h3>
+          <p class="small mb-0">The main content column. It's the widest at every size, so it always gets the most space, and it never drops.</p>
+        </div>
+      </div>
+      <div class="col-12 col-lg-3">
+        <div class="demo">
+          <div class="tag">.col-12 .col-lg-3 (drops below lg)</div>
+          <h3 class="h6 mt-2">Library Hours</h3>
+          <p class="small mb-0">Mon to Fri: 8am to 9pm<br>Sat and Sun: 10am to 6pm</p>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive mt-3">
+      <table class="table table-sm small mb-0">
+        <thead><tr><th>Screen</th><th>Browse</th><th>Featured</th><th>Hours</th></tr></thead>
+        <tbody>
+          <tr><td>Large (992px+)</td><td>3 of 12</td><td>6 of 12</td><td>3 of 12, same row</td></tr>
+          <tr><td>Medium (768 to 991px)</td><td>4 of 12</td><td>8 of 12</td><td>Drops below, full width</td></tr>
+          <tr><td>Small (under 768px)</td><td colspan="3">All three stack, full width</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+<footer class="border-top bg-body-tertiary py-4 mt-4">
+  <div class="container text-center small text-body-secondary">
+    <p class="mb-1">Lab 11: Bootstrap and Responsive UI | IT 4403, Kennesaw State University</p>
+    <a href="../index.html#lab11">Back to Lab 11</a>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

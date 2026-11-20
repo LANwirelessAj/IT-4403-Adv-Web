@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task 1: Paging with a Mustache Template | Lab 9: Data Interaction Enhancements | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.2.0/mustache.min.js"></script>
+<script id="booksTemplate" type="text/template">
+  <p class="page-label">Page {{page}} of {{totalPages}}</p>
+  <ul class="book-row">
+  {{#books}}
+    <li>
+      <button type="button" class="bookicon" data-index="{{index}}" title="{{title}}">
+        {{#hasCover}}<img class="cover" src="{{cover}}" alt="Cover of {{title}}">{{/hasCover}}
+        {{^hasCover}}<span class="no-cover">{{title}}</span>{{/hasCover}}
+      </button>
+    </li>
+  {{/books}}
+  </ul>
+</script>
+<script id="pagesTemplate" type="text/template">
+  Pages:
+  {{#pages}}
+    <a class="page{{#current}} current{{/current}}" href="#" data-page="{{number}}"{{#current}} aria-current="page"{{/current}}>{{number}}</a>
+  {{/pages}}
+</script>
+<script id="detailTemplate" type="text/template">
+  <h2>{{title}}</h2>
+  <p><strong>Author:</strong> {{author}}</p>
+  <p><strong>First Published:</strong> {{year}}</p>
+</script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  [hidden] { display:none !important; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+
+  .sr { position:absolute; left:-9999px; }
+  .search-row { display:flex; gap:.5rem; max-width:36rem; flex-wrap:wrap; }
+  .search-row input { flex:1; min-width:12rem; }
+  input.invalid { border-color:var(--bad); }
+  .status { margin-top:.75rem; }
+  .status.err { border-left-color:var(--bad); }
+  .status.warn { border-left-color:#fbbf24; }
+  .cover { width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:4px; background:var(--bg); display:block; }
+  .no-cover { width:100%; aspect-ratio:2/3; display:grid; place-items:center; text-align:center; padding:.4rem; border-radius:4px; background:var(--bg); border:1px dashed var(--line); color:var(--muted); font-size:.75rem; }
+  .book-title { font-size:.85rem; line-height:1.3; color:var(--heading); margin-top:.45rem; font-weight:600; overflow-wrap:anywhere; }
+  .book-meta { font-size:.78rem; color:var(--muted); }
+
+  .pages { margin-top:1rem; display:flex; flex-wrap:wrap; align-items:center; gap:.4rem; color:var(--muted); }
+  .pages:empty { display:none; }
+  .page { border:1px solid var(--link); padding:.35rem .8rem; border-radius:4px; font-weight:600; }
+  .page:hover { background:var(--panel2); text-decoration:none; }
+  .page.current { background:var(--link); color:var(--bg); }
+  .sub-h { margin-top:1.5rem; padding-bottom:.3rem; border-bottom:1px solid var(--line); }
+  .page-label { color:var(--muted); margin:.5rem 0; }
+  .book-row { list-style:none; display:flex; flex-wrap:wrap; gap:.5rem; }
+  .book-row li { width:88px; }
+  .bookicon { width:100%; padding:0; background:none; border:2px solid transparent; border-radius:6px; transition:transform .15s; }
+  .bookicon:hover, .bookicon:focus-visible { transform:scale(1.12); border-color:var(--link); background:none; position:relative; z-index:2; }
+  .bookicon.selected { border-color:#fbbf24; }
+  #book h2 { font-size:1.2rem; margin-bottom:.3rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab9">Lab 9: Data Interaction Enhancements</a></li>
+      <li aria-current="page">Task 1</li>
+    </ol>
+  </nav>
+  <h1>Task 1: Paging with a Mustache Template</h1>
+  <p class="lead">The instructor's paging demo rewritten so Mustache templates render the results, page links, and selected book.</p>
+  <section class="card">
+    <form id="searchForm" class="search-row" novalidate>
+      <label for="searchTerm" class="sr">Search term</label>
+      <input type="text" id="searchTerm" value="mobile web" autocomplete="off">
+      <button id="button1">Search</button>
+    </form>
+    <p id="pages" class="pages" aria-label="Result pages"></p>
+    <div id="status" aria-live="polite"></div>
+    <h3 class="sub-h">Search Results</h3>
+    <div id="books" aria-live="polite"><p class="muted">Search to see results.</p></div>
+    <h3 class="sub-h">Selected Book</h3>
+    <div id="book" class="out"><p class="muted">Click a cover to see its details.</p></div>
+  </section>
+
+  <section class="card">
+    <h2>What I Changed</h2>
+    <p><strong>Mustache templates.</strong> The original built every cover as a long string with <code>+</code> and stored the title, author, and year in <code>data-</code> attributes, which needed its own <code>escapeHtml()</code> function. Now three templates in the page hold all the HTML: one for the result covers, one for the page links, and one for the selected book. The JavaScript only prepares data and calls <code>Mustache.render()</code>, and Mustache escapes values by itself, so <code>escapeHtml()</code> is gone.</p>
+    <p><strong>Paging fix.</strong> The original asked for <code>&amp;page=2</code> without a <code>limit</code>. Open Library's default page size is 100, so page 2 started at result 101 and skipped 90 books. Adding <code>limit=10</code> makes each page exactly the next ten.</p>
+    <p><strong>Smaller fixes.</strong> Only the pages that exist are shown (a search with 23 matches gets 3 page links, not 5), the current page is highlighted, and missing covers show the title instead of the old <code>via.placeholder.com</code> image, which no longer loads.</p>
+    <p class="muted"><a href="instructor-examples/load-more-1-paging-updated.html">View the original instructor file</a></p>
+  </section>
+
+  <section class="card">
+    <h2>The Results Template</h2>
+    <pre><code>&lt;p class="page-label"&gt;Page {{page}} of {{totalPages}}&lt;/p&gt;
+  &lt;ul class="book-row"&gt;
+  {{#books}}
+    &lt;li&gt;
+      &lt;button type="button" class="bookicon" data-index="{{index}}" title="{{title}}"&gt;
+        {{#hasCover}}&lt;img class="cover" src="{{cover}}" alt="Cover of {{title}}"&gt;{{/hasCover}}
+        {{^hasCover}}&lt;span class="no-cover"&gt;{{title}}&lt;/span&gt;{{/hasCover}}
+      &lt;/button&gt;
+    &lt;/li&gt;
+  {{/books}}
+  &lt;/ul&gt;</code></pre>
+  </section>
+
+</main>
+<footer>
+  <p>Lab 9: Data Interaction Enhancements, Task 1 | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab9">Back to Lab 9: Data Interaction Enhancements</a></p>
+</footer>
+<script>
+
+var API = "https://openlibrary.org/search.json";
+var PER_PAGE = 10;
+
+// Converts one Open Library doc into the plain values the template uses
+function toBook(doc, i) {
+  return {
+    index: i,
+    title: doc.title || "No title",
+    author: (doc.author_name && doc.author_name.length) ? doc.author_name[0] : "Unknown author",
+    year: doc.first_publish_year || "N/A",
+    cover: doc.cover_i ? "https://covers.openlibrary.org/b/id/" + doc.cover_i + "-M.jpg" : "",
+    hasCover: !!doc.cover_i
+  };
+}
+
+// limit=10 matters: without it Open Library pages hold 100 results,
+// so page=2 would start at result 101 and skip 90 books.
+function requestPage(term, page) {
+  return $.ajax({
+    url: API,
+    data: { q: term, page: page, limit: PER_PAGE, fields: "key,title,author_name,first_publish_year,cover_i" },
+    dataType: "json",
+    timeout: 15000
+  });
+}
+
+function readTerm() {
+  var term = $.trim($("#searchTerm").val());
+  if (!term) {
+    $("#searchTerm").addClass("invalid").focus();
+    $("#status").html('<div class="out status warn">Please enter a search term.</div>');
+    return "";
+  }
+  $("#searchTerm").removeClass("invalid");
+  return term;
+}
+
+$(document).ready(function () {
+  var currentTerm = "";
+  var currentBooks = [];
+  var busy = false;
+
+  $("#searchForm").on("submit", function (event) {
+    event.preventDefault();
+    var term = readTerm();
+    if (!term) { $("#books").empty(); $("#pages").empty(); return; }
+    currentTerm = term;
+    searchBooks(term, 1);
+  });
+
+  // Page links are created by the template, so the click is delegated
+  $("#pages").on("click", ".page", function (event) {
+    event.preventDefault();
+    var page = parseInt($(this).data("page"), 10);
+    if (!busy && currentTerm) searchBooks(currentTerm, page);
+  });
+
+  // Covers are rendered from the template; each one remembers its array index
+  $("#books").on("click", ".bookicon", function () {
+    $(".bookicon").removeClass("selected");
+    $(this).addClass("selected");
+    var book = currentBooks[$(this).data("index")];
+    $("#book").html(Mustache.render($("#detailTemplate").html(), book));
+  });
+
+  function searchBooks(term, page) {
+    busy = true;
+    $("#button1").prop("disabled", true).text("Searching...");
+    $("#status").html('<div class="out status">Searching for "' + $("<i>").text(term).html() + '", page ' + page + '...</div>');
+    $("#book").html('<p class="muted">Click a cover to see its details.</p>');
+
+    requestPage(term, page)
+      .done(function (jsonData) {
+        var docs = (jsonData.docs || []).slice(0, PER_PAGE);
+        if (!docs.length) {
+          $("#books").html("<p>No results found.</p>");
+          $("#pages").empty();
+          $("#status").empty();
+          return;
+        }
+        currentBooks = $.map(docs, toBook);
+        var totalPages = Math.min(5, Math.ceil((jsonData.numFound || docs.length) / PER_PAGE));
+
+        // Data in, HTML out: the templates do all the markup
+        $("#books").html(Mustache.render($("#booksTemplate").html(),
+          { page: page, totalPages: totalPages, books: currentBooks }));
+
+        var pages = [];
+        for (var i = 1; i <= totalPages; i++) pages.push({ number: i, current: i === page });
+        $("#pages").html(totalPages > 1 ? Mustache.render($("#pagesTemplate").html(), { pages: pages }) : "");
+        $("#status").empty();
+      })
+      .fail(function (xhr, textStatus) {
+        $("#books").html('<div class="out status err">Error loading data (' + (xhr.status || textStatus) + '). Try again.</div>');
+        $("#status").empty();
+      })
+      .always(function () {
+        busy = false;
+        $("#button1").prop("disabled", false).text("Search");
+      });
+  }
+
+  $("#searchForm").trigger("submit");
+});
+
+</script>
+</body>
+</html>

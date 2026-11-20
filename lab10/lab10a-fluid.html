@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Flexible Grid | Lab 10 Task 2 | Lawrence Ajayi</title>
+
+    <style type="text/css">
+        /* Fluid version of lab10a-fixed.html.
+           Every fixed px width is converted with: target / context = result.
+           The context is the 900px container, so the layout keeps the same
+           proportions at any screen size. */
+
+        *
+        {
+            box-sizing: border-box;      /* borders stay inside the % widths */
+        }
+
+        body
+        {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        div
+        {
+            border: 2px solid blue;
+            margin: 2px;
+        }
+
+        #container
+        {
+            width: 90%;                   /* was 900px */
+            max-width: 1200px;            /* keeps lines readable on very wide screens */
+            margin: auto;
+        }
+
+        #sidebar
+        {
+            width: 22.2222%;              /* 200 / 900 */
+            float: left;
+        }
+
+        #main
+        {
+            margin-left: 23.3333%;        /* 210 / 900 */
+        }
+
+        #footer
+        {
+            clear: both;                  /* footer always starts below the sidebar */
+        }
+
+        img
+        {
+            max-width: 100%;              /* fluid images never overflow their box */
+        }
+
+        .lab-note
+        {
+            border: 0;
+            margin: 0 0 12px;
+            padding: 10px 5%;
+            background: #1e293b;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        .lab-note a { color: #7dd3fc; }
+    </style>
+
+    </head>
+    <body>
+        <div class="lab-note">Lab 10, Task 2: fluid grid. Resize the window and every column scales with it.
+            <a href="task2-fluid-grid-notes.html">See the px to % conversions</a> | <a href="../index.html#lab10">Back to Lab 10</a></div>
+
+        <div id="container">
+            <div id="header">header</div>
+            <div id="sidebar">side<p>.</p></div>
+            <div id="main">main page content.
+			<p>main page content. </p>
+			<p>main page content. </p>
+			</div>
+            <div id="footer">footer</div>
+        </div>
+
+    </body>
+</html>
