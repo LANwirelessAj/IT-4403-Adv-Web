@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exercise 4: Books Grid with a Mustache Template | Lab 8: CSS Flexbox and Templates | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.2.0/mustache.min.js"></script>
+<script id="bookTemplate" type="text/template">
+{{#books}}
+  <article class="book">
+    {{#hasCover}}<img class="cover" src="{{cover}}" alt="Cover of {{title}}">{{/hasCover}}
+    {{^hasCover}}<div class="no-cover">No cover available</div>{{/hasCover}}
+    <div class="info">
+      <h3>{{#link}}<a href="{{link}}" target="_blank" rel="noopener">{{title}}</a>{{/link}}{{^link}}{{title}}{{/link}}</h3>
+      <p class="meta">{{authors}}</p>
+      <p class="meta">{{year}}</p>
+    </div>
+  </article>
+{{/books}}
+</script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  [hidden] { display:none !important; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+
+  .sr { position:absolute; left:-9999px; }
+  .search-row { display:flex; gap:.5rem; max-width:36rem; }
+  .search-row input { flex:1; }
+  input.invalid { border-color:var(--bad); }
+  .status { margin-top:.75rem; }
+  .status.err { border-left-color:var(--bad); }
+  .status.warn { border-left-color:#fbbf24; }
+  #status p { margin-top:.75rem; }
+  .controls button.is-on { background:var(--link); color:var(--bg); }
+
+  /* Flexbox container: the layout classes only change the item widths */
+  .books { display:flex; flex-wrap:wrap; gap:1rem; margin-top:1rem; }
+  .book { display:flex; flex-direction:column; background:var(--panel2); border-radius:8px; padding:.9rem; transition:width .2s; }
+  .book .cover { width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:4px; background:var(--bg); }
+  .book .no-cover { width:100%; aspect-ratio:2/3; display:grid; place-items:center; text-align:center; padding:.5rem; border-radius:4px; background:var(--bg); border:1px dashed var(--line); color:var(--muted); font-size:.8rem; }
+  .book h3 { font-size:.95rem; line-height:1.3; margin:.6rem 0 .2rem; }
+  .book h3 a { color:var(--heading); }
+  .book .meta { color:var(--muted); font-size:.82rem; }
+  .book .info { min-width:0; overflow-wrap:anywhere; }
+
+  .layout-grid .book  { width:calc(25% - .75rem); }               /* 4 per row */
+  .layout-three .book { width:calc(33.333% - .667rem); }          /* 3 per row */
+  .layout-list .book  { width:100%; flex-direction:row; gap:1rem; align-items:flex-start; }
+  .layout-list .book .cover, .layout-list .book .no-cover { width:70px; flex:none; }
+  .layout-list .book h3 { margin-top:0; }
+
+  /* Feature: the first item takes the whole first row */
+  .feature-first .book:first-child { width:100%; flex-direction:row; gap:1.25rem; align-items:flex-start; }
+  .feature-first .book:first-child .cover, .feature-first .book:first-child .no-cover { width:140px; flex:none; }
+  .feature-first .book:first-child h3 { font-size:1.3rem; margin-top:0; }
+
+  @media (max-width:800px) { .layout-grid .book, .layout-three .book { width:calc(50% - .5rem); } }
+  @media (max-width:480px) { .search-row { flex-direction:column; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab8">Lab 8: CSS Flexbox and Templates</a></li>
+      <li aria-current="page">Exercise 4</li>
+    </ol>
+  </nav>
+  <h1>Exercise 4: Books Grid with a Mustache Template</h1>
+  <p class="lead">Exercise 2 rewritten so a Mustache template renders the results instead of string concatenation.</p>
+  <section class="card">
+    <form id="searchForm" class="search-row" novalidate>
+      <label for="term" class="sr">Title, author, or topic</label>
+      <input id="term" type="text" maxlength="100" value="web development" autocomplete="off">
+      <button id="go">Search</button>
+    </form>
+    <div id="status" aria-live="polite"></div>
+
+    <div id="results" class="books layout-grid" aria-live="polite"></div>
+  </section>
+  <section class="card">
+    <h2>What Mustache Changed</h2>
+    <p>The HTML for one book now lives in a <code>&lt;script type="text/template"&gt;</code> block instead of being glued together with <code>+</code> in JavaScript. <code>{#books}...{/books}</code> repeats the block once per book, <code>{#hasCover}</code> and <code>{^hasCover}</code> pick between the image and the placeholder, and <code>{title}</code> escapes the value on its own, so the <code>text()</code> and <code>attr()</code> helpers from the string version are gone.</p>
+    <pre><code>{{#books}}
+  &lt;article class="book"&gt;
+    {{#hasCover}}&lt;img class="cover" src="{{cover}}" alt="Cover of {{title}}"&gt;{{/hasCover}}
+    {{^hasCover}}&lt;div class="no-cover"&gt;No cover available&lt;/div&gt;{{/hasCover}}
+    &lt;div class="info"&gt;
+      &lt;h3&gt;{{#link}}&lt;a href="{{link}}" target="_blank" rel="noopener"&gt;{{title}}&lt;/a&gt;{{/link}}{{^link}}{{title}}{{/link}}&lt;/h3&gt;
+      &lt;p class="meta"&gt;{{authors}}&lt;/p&gt;
+      &lt;p class="meta"&gt;{{year}}&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/article&gt;
+{{/books}}</code></pre>
+  </section>
+
+</main>
+<footer>
+  <p>Lab 8: CSS Flexbox and Templates, Exercise 4 | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab8">Back to Lab 8: CSS Flexbox and Templates</a></p>
+</footer>
+<script>
+
+// ---------- Google Books request, shared by every exercise ----------
+var API = "https://www.googleapis.com/books/v1/volumes";
+
+// Turns one Google Books item into the fields the page displays.
+// Missing fields get fallbacks here so the display code never has to check.
+function toBook(item) {
+  var v = (item && item.volumeInfo) || {};
+  var img = v.imageLinks && (v.imageLinks.thumbnail || v.imageLinks.smallThumbnail);
+  var desc = $.trim(v.description || "");
+  return {
+    title: v.title || "Untitled",
+    subtitle: v.subtitle || "",
+    authors: (v.authors && v.authors.length) ? v.authors.join(", ") : "Author not listed",
+    year: (v.publishedDate || "").slice(0, 4) || "Year not listed",
+    publisher: v.publisher || "Publisher not listed",
+    pages: v.pageCount ? v.pageCount + " pages" : "Page count not listed",
+    category: (v.categories && v.categories[0]) || "",
+    cover: img ? img.replace(/^http:/, "https:") : "",       // Google sends http links; force https
+    hasCover: !!img,
+    description: desc.length > 220 ? desc.slice(0, 217) + "..." : (desc || "No description available."),
+    link: v.infoLink ? v.infoLink.replace(/^http:/, "https:") : ""
+  };
+}
+
+var busy = false;
+
+// Validates the term, shows loading/empty/error states, and hands back the books
+function searchBooks(onDone) {
+  if (busy) return;
+  var term = $.trim($("#term").val());
+  if (!term) {
+    $("#status").html('<div class="out status warn">Enter a title, author, or topic to search.</div>');
+    $("#term").addClass("invalid").focus();
+    return;
+  }
+  $("#term").removeClass("invalid");
+  busy = true;
+  $("#go").prop("disabled", true).text("Searching...");
+  $("#status").html('<div class="out status">Searching Google Books for "' + $("<i>").text(term).html() + '"...</div>');
+
+  $.ajax({ url: API, data: { q: term, maxResults: 12, printType: "books" }, dataType: "json", timeout: 15000 })
+    .done(function (data) {
+      var books = $.map((data && data.items) || [], toBook);
+      if (!books.length) {
+        $("#results").empty();
+        $("#status").html('<div class="out status">No books matched "' + $("<i>").text(term).html() + '". Try different keywords.</div>');
+        return;
+      }
+      $("#status").html('<p class="muted">' + books.length + ' books for "' + $("<i>").text(term).html() + '"</p>');
+      onDone(books);
+    })
+    .fail(function (xhr, textStatus) {
+      $("#results").empty();
+      $("#status").html('<div class="out status err">The search failed (' + (xhr.status || textStatus) + '). Try again in a moment.</div>');
+    })
+    .always(function () { busy = false; $("#go").prop("disabled", false).text("Search"); });
+}
+
+$(function () {
+  $("#term").on("input", function () { $(this).removeClass("invalid"); });
+});
+
+// Mustache: the template in the <head> holds all the HTML, this function only supplies data.
+// {{ }} tags escape values automatically, so no manual escaping is needed.
+function renderBooks(books) {
+  var template = $("#bookTemplate").html();
+  $("#results").html(Mustache.render(template, { books: books }));
+}
+
+$(function () {
+  $("#searchForm").on("submit", function (e) {
+    e.preventDefault();
+    searchBooks(function (books) { renderBooks(books); });
+  });
+  $("#searchForm").trigger("submit");      // load a starting search
+});
+</script>
+</body>
+</html>

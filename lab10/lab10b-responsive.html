@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Responsive Roster | Lab 10 Task 3 | Lawrence Ajayi</title>
+
+    <style type="text/css">
+        /* Responsive version of lab10b-fixed.html
+           1. Fluid grid: px widths converted to % of their container
+           2. Media queries: tablet (max 900px) and mobile (max 600px, max 400px) */
+
+        *
+        {
+            box-sizing: border-box;
+        }
+
+        body
+        {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        div
+        {
+            border: 1px solid blue;
+            margin: 5px;
+        }
+
+        #container
+        {
+            width: 95%;                       /* was 1000px */
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        #header
+        {
+            padding: 18px 2%;
+            background: #000;
+            color: #fdbb30;                   /* KSU black and gold */
+            border-color: #fdbb30;
+        }
+
+        #header h1
+        {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        #header p
+        {
+            margin: 0;
+            color: #fff;
+        }
+
+        #sidebar
+        {
+            width: 20%;                       /* 200 / 1000 */
+            float: left;
+            padding: 10px;
+        }
+
+        #main
+        {
+            margin-left: 22%;                 /* 220 / 1000 */
+            padding: 1%;                      /* 10 / 1000 */
+        }
+
+        .product
+        {
+            float: left;
+            width: 23%;                       /* 176px of a ~770px main area, four per row */
+            min-height: 200px;                /* min-height, so longer text can grow the box */
+            margin: 1%;
+            padding: 10px;
+            border: 1px solid red;
+        }
+
+        .product strong
+        {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .clearfix
+        {
+            clear: both;
+            border: 0;
+            margin: 0;
+        }
+
+        img
+        {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .lab-note
+        {
+            border: 0;
+            margin: 0 0 12px;
+            padding: 10px 2.5%;
+            background: #1e293b;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        .lab-note a { color: #7dd3fc; }
+
+        /* ---------- Tablet: three products per row, narrower sidebar ---------- */
+        @media screen and (max-width: 900px)
+        {
+            #sidebar  { width: 25%; }
+            #main     { margin-left: 27%; }
+            .product  { width: 31.33%; }
+        }
+
+        /* ---------- Mobile: sidebar stacks on top, two products per row ---------- */
+        @media screen and (max-width: 600px)
+        {
+            #container { width: 100%; }
+            #header h1 { font-size: 1.4em; }
+            #sidebar
+            {
+                float: none;
+                width: auto;
+            }
+            #main
+            {
+                margin-left: 5px;
+                padding: 2%;
+            }
+            .product
+            {
+                width: 48%;
+                min-height: 140px;
+            }
+        }
+
+        /* ---------- Small phones: one product per row ---------- */
+        @media screen and (max-width: 400px)
+        {
+            .product
+            {
+                float: none;
+                width: auto;
+                min-height: 0;
+                margin: 8px 0;
+            }
+        }
+    </style>
+
+    </head>
+    <body>
+        <div class="lab-note">Lab 10, Task 3: fluid grid plus media queries. Try it at desktop, tablet (900px), and phone (600px and 400px) widths.
+            <a href="task3-responsive-notes.html">What changed</a> | <a href="../index.html#lab10">Back to Lab 10</a></div>
+
+        <div id="container">
+            <div id="header">
+                <h1>Kennesaw State Owls</h1>
+                <p>Team roster</p>
+            </div>
+            <div id="sidebar">some content on the side here<p>.</p></div>
+            <div id="main">
+                <div class="product"><strong>Player 1</strong><span>some introduction of player 1 here.</span></div>
+                <div class="product"><strong>Player 2</strong><span>Player profile</span></div>
+                <div class="product"><strong>Player 3</strong><span>Player profile</span></div>
+                <div class="product"><strong>Player 4</strong><span>Player profile</span></div>
+                <div class="product"><strong>Player 5</strong><span>Player profile</span></div>
+                <div class="product"><strong>Player 6</strong><span>Player profile</span></div>
+                <div class="product"><strong>Player 7</strong><span>Player profile</span></div>
+                <div class="product"><strong>Player 8</strong><span>Player profile</span></div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+
+    </body>
+</html>
