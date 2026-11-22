@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exercise 1b: Column Drop Pattern | Lab 11: Bootstrap | Lawrence Ajayi</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  :root, [data-bs-theme=dark] { --bs-body-bg:#0f172a; --bs-tertiary-bg:#1e293b; --bs-secondary-bg:#273449; --bs-border-color:#334155; --bs-link-color:#7dd3fc; --bs-link-hover-color:#bae6fd; --bs-link-color-rgb:125,211,252; }
+  .demo { background:#1e293b; border:1px solid #334155; border-radius:.5rem; padding:1rem; height:100%; }
+  .demo .tag { font:600 .75rem/1 Consolas,monospace; color:#7dd3fc; }
+  .grid-show [class*="col"] > .demo { min-height:5rem; }
+  .bp-badge span { display:none; }
+  .bp-badge .xs { display:inline; }
+  @media (min-width:576px)  { .bp-badge .xs { display:none; } .bp-badge .sm { display:inline; } }
+  @media (min-width:768px)  { .bp-badge .sm { display:none; } .bp-badge .md { display:inline; } }
+  @media (min-width:992px)  { .bp-badge .md { display:none; } .bp-badge .lg { display:inline; } }
+  @media (min-width:1200px) { .bp-badge .lg { display:none; } .bp-badge .xl { display:inline; } }
+  pre { background:#0b1222; border:1px solid #334155; border-radius:.5rem; padding:1rem; font-size:.8rem; }
+  section[id] { scroll-margin-top:5rem; }
+</style>
+</head>
+<body id="top">
+<header class="border-bottom bg-body-tertiary">
+  <div class="container py-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+    <a class="fw-bold text-body text-decoration-none" href="../index.html">Lawrence Ajayi</a>
+    <nav aria-label="Main navigation" class="d-flex gap-3">
+      <a href="../index.html">Home</a><a href="../index.html#labs">Lab Work</a><a href="../index.html#lab11">Lab 11</a>
+    </nav>
+  </div>
+</header>
+<main class="container py-4">
+  <nav aria-label="Breadcrumb">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+      <li class="breadcrumb-item"><a href="../index.html#lab11">Lab 11: Bootstrap</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Exercise 1b</li>
+    </ol>
+  </nav>
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h2 mb-0">Exercise 1b: Column Drop Pattern</h1>
+    <span class="badge text-bg-info bp-badge" title="Current Bootstrap breakpoint">Breakpoint:
+  <span class="xs">xs (&lt;576px)</span><span class="sm">sm (576px+)</span><span class="md">md (768px+)</span><span class="lg">lg (992px+)</span><span class="xl">xl (1200px+)</span></span>
+  </div>
+  <div class="alert alert-secondary small" role="note">
+    <strong>Continuing build:</strong> this page starts the project that Exercises 2, 3, and 4 keep adding to.
+  </div>
+  <section id="layout" class="mb-4" aria-labelledby="dropHead">
+    <h2 class="h4" id="dropHead">Column Drop Layout</h2>
+    <p class="text-body-secondary">Three columns sit side by side on large screens. At the <code>md</code> breakpoint the third column drops below the first two, and on phones all three stack.</p>
+    <div class="row g-3">
+      <div class="col-12 col-md-4 col-lg-3">
+        <div class="demo">
+          <div class="tag">.col-12 .col-md-4 .col-lg-3</div>
+          <h3 class="h6 mt-2">Browse</h3>
+          <ul class="list-unstyled small mb-0">
+            <li>Science fiction</li><li>History</li><li>Programming</li><li>Biography</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="demo">
+          <div class="tag">.col-12 .col-md-8 .col-lg-6</div>
+          <h3 class="h6 mt-2">Featured Book</h3>
+          <p class="small mb-0">The main content column. It's the widest at every size, so it always gets the most space, and it never drops.</p>
+        </div>
+      </div>
+      <div class="col-12 col-lg-3">
+        <div class="demo">
+          <div class="tag">.col-12 .col-lg-3 (drops below lg)</div>
+          <h3 class="h6 mt-2">Library Hours</h3>
+          <p class="small mb-0">Mon to Fri: 8am to 9pm<br>Sat and Sun: 10am to 6pm</p>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive mt-3">
+      <table class="table table-sm small mb-0">
+        <thead><tr><th>Screen</th><th>Browse</th><th>Featured</th><th>Hours</th></tr></thead>
+        <tbody>
+          <tr><td>Large (992px+)</td><td>3 of 12</td><td>6 of 12</td><td>3 of 12, same row</td></tr>
+          <tr><td>Medium (768 to 991px)</td><td>4 of 12</td><td>8 of 12</td><td>Drops below, full width</td></tr>
+          <tr><td>Small (under 768px)</td><td colspan="3">All three stack, full width</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+<footer class="border-top bg-body-tertiary py-4 mt-4">
+  <div class="container text-center small text-body-secondary">
+    <p class="mb-1">Lab 11: Bootstrap and Responsive UI | IT 4403, Kennesaw State University</p>
+    <a href="../index.html#lab11">Back to Lab 11</a>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

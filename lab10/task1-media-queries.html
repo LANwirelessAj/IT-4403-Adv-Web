@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task 1: Media Queries | Lab 10: Responsive Web Design | Lawrence Ajayi</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0; --heading:#f8fafc; --link:#7dd3fc; --muted:#94a3b8; --line:#334155; --good:#4ade80; --bad:#f87171; }
+  [hidden] { display:none !important; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--link); outline-offset:2px; }
+  header { background:var(--panel); padding:1rem 2rem; position:sticky; top:0; z-index:100; }
+  .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto; gap:1rem; flex-wrap:wrap; }
+  .site-title { font-size:1.3rem; font-weight:bold; color:var(--heading); }
+  header nav ul { list-style:none; display:flex; gap:1.5rem; flex-wrap:wrap; }
+  header nav a { color:var(--text); font-weight:500; }
+  main { max-width:1100px; margin:0 auto; padding:2rem 2rem 3rem; }
+  .crumbs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; font-size:.9rem; color:var(--muted); margin-bottom:1.25rem; }
+  .crumbs li + li::before { content:"/"; margin-right:.4rem; }
+  h1 { font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.2; color:var(--heading); margin-bottom:.4rem; }
+  h2 { font-size:1.3rem; color:var(--heading); margin-bottom:.75rem; }
+  h3 { font-size:1.05rem; color:var(--heading); margin-bottom:.5rem; }
+  .lead { color:var(--muted); max-width:75ch; margin-bottom:2rem; }
+  .card { background:var(--panel); border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+  .card p + p { margin-top:.6rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+  button { font:inherit; font-weight:600; cursor:pointer; background:var(--link); color:var(--bg); border:0; border-radius:6px; padding:.5rem 1rem; }
+  button:hover { background:#bae6fd; }
+  button.alt { background:transparent; color:var(--link); border:2px solid var(--link); }
+  button.alt:hover { background:var(--panel2); }
+  .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0; }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1rem; overflow-x:auto; font:0.85rem/1.5 Consolas, 'Courier New', monospace; color:#cbd5e1; }
+  code { font-family:Consolas, 'Courier New', monospace; background:var(--bg); padding:0 .3rem; border-radius:4px; font-size:.9em; }
+  pre code { padding:0; background:none; font-size:inherit; }
+  .out { background:var(--panel2); border-left:4px solid var(--link); border-radius:6px; padding:.75rem 1rem; margin-top:.75rem; min-height:2.6rem; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  label { display:block; font-weight:600; color:var(--muted); font-size:.9rem; margin-bottom:.25rem; }
+  input, select { font:inherit; width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:.5rem .7rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+  th { color:var(--heading); background:var(--panel2); }
+  dl.facts div { display:grid; grid-template-columns:10rem 1fr; gap:1rem; padding:.5rem 0; border-bottom:1px solid var(--line); }
+  dl.facts dt { color:var(--muted); font-weight:600; }
+  ul.clean { list-style:none; } ul.clean li { padding:.35rem 0; border-bottom:1px solid var(--line); }
+  footer { text-align:center; padding:2rem; background:var(--panel); color:var(--muted); font-size:.9rem; }
+  @media (max-width:600px) { dl.facts div { grid-template-columns:1fr; gap:0; } main { padding:1.5rem 1rem; } }
+
+  .mq-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem; margin-bottom:1.5rem; }
+  .mq-card { background:var(--panel); border:3px solid var(--line); border-radius:8px; padding:1.25rem; transition:background .2s, border-color .2s; }
+  .mq-head { display:flex; align-items:center; gap:.6rem; margin-bottom:.75rem; }
+  .mq-head h3 { flex:1; margin:0; font-size:1rem; }
+  .mq-letter { display:grid; place-items:center; width:2rem; height:2rem; border-radius:50%; background:var(--line); color:#fff; font-weight:700; flex:none; }
+  .mq-badge { font-size:.8rem; font-weight:700; padding:.15rem .6rem; border-radius:999px; background:var(--panel2); color:var(--muted); white-space:nowrap; }
+  .mq-badge.on { background:#16a34a; color:#fff; }
+  .mq-card pre { font-size:.78rem; }
+  .mq-card p { margin-top:.6rem; font-size:.9rem; }
+  dl.facts div { grid-template-columns:8rem 1fr; }
+  /* The four required media queries */
+  @media screen and (min-width: 400px) and (max-width: 600px) {
+    #mq-a { border-color: #22c55e; background: #22c55e22; }
+    #mq-a .mq-letter { background: #22c55e; }
+  }
+  @media (orientation: portrait) and (max-width: 639px) {
+    #mq-b { border-color: #a855f7; background: #a855f722; }
+    #mq-b .mq-letter { background: #a855f7; }
+  }
+  @media (max-aspect-ratio: 16/9) and (min-width: 480px) and (max-width: 960px) {
+    #mq-c { border-color: #f97316; background: #f9731622; }
+    #mq-c .mq-letter { background: #f97316; }
+  }
+  @media print, screen and (max-width: 479px) {
+    #mq-d { border-color: #ef4444; background: #ef444422; }
+    #mq-d .mq-letter { background: #ef4444; }
+  }
+  @media print {
+    header, footer, nav, .mq-badge, #vp, .card:last-of-type { display:none !important; }
+    body { background:#fff; color:#000; }
+    .mq-card { break-inside:avoid; color:#000; }
+    .mq-card pre { background:#f4f4f4; color:#000; border-color:#ccc; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="site-title">Lawrence Ajayi</div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#labs">Lab Work</a></li>
+        <li><a href="../index.html#milestones">Project</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb">
+    <ol class="crumbs">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#lab10">Lab 10: Responsive Web Design</a></li>
+      <li aria-current="page">Task 1</li>
+    </ol>
+  </nav>
+  <h1>Task 1: Media Queries</h1>
+  <p class="lead">The four required media query rules. Each card lights up when its query matches the current window.</p>
+  <section class="card">
+    <h2>Live Viewport</h2>
+    <dl class="facts" id="vp">
+      <div><dt>Width</dt><dd id="vpW">-</dd></div>
+      <div><dt>Height</dt><dd id="vpH">-</dd></div>
+      <div><dt>Orientation</dt><dd id="vpO">-</dd></div>
+      <div><dt>Aspect ratio</dt><dd id="vpA">-</dd></div>
+    </dl>
+    <p class="muted" style="margin-top:.75rem">Resize the window or open DevTools device mode (Ctrl + Shift + M). A card turns its rule's color when the CSS media query matches. The badge is a separate check using <code>window.matchMedia()</code> with the same query text, so the two always agree.</p>
+  </section>
+  <div class="mq-grid">
+    <article class="mq-card" id="mq-a">
+      <div class="mq-head"><span class="mq-letter">a</span><h3>Screen width between 400px and 600px</h3><span class="mq-badge" data-q="screen and (min-width: 400px) and (max-width: 600px)">Checking...</span></div>
+      <pre><code>@media screen and (min-width: 400px) and (max-width: 600px) {
+  #mq-a { border-color: #22c55e; background: #22c55e22; }
+  #mq-a .mq-letter { background: #22c55e; }
+}</code></pre>
+      <p class="muted">Both ends are inclusive, so exactly 400px and 600px count.</p>
+    </article>
+    <article class="mq-card" id="mq-b">
+      <div class="mq-head"><span class="mq-letter">b</span><h3>Portrait orientation and width under 640px</h3><span class="mq-badge" data-q="(orientation: portrait) and (max-width: 639px)">Checking...</span></div>
+      <pre><code>@media (orientation: portrait) and (max-width: 639px) {
+  #mq-b { border-color: #a855f7; background: #a855f722; }
+  #mq-b .mq-letter { background: #a855f7; }
+}</code></pre>
+      <p class="muted">Portrait means the viewport is taller than it is wide. <code>max-width: 639px</code> keeps it strictly under 640px.</p>
+    </article>
+    <article class="mq-card" id="mq-c">
+      <div class="mq-head"><span class="mq-letter">c</span><h3>Narrower than 16:9 and width 480px to 960px</h3><span class="mq-badge" data-q="(max-aspect-ratio: 16/9) and (min-width: 480px) and (max-width: 960px)">Checking...</span></div>
+      <pre><code>@media (max-aspect-ratio: 16/9) and (min-width: 480px) and (max-width: 960px) {
+  #mq-c { border-color: #f97316; background: #f9731622; }
+  #mq-c .mq-letter { background: #f97316; }
+}</code></pre>
+      <p class="muted"><code>max-aspect-ratio: 16/9</code> matches any shape whose width-to-height ratio is 16:9 or less, so a 4:3 window matches and a wide 21:9 window doesn't.</p>
+    </article>
+    <article class="mq-card" id="mq-d">
+      <div class="mq-head"><span class="mq-letter">d</span><h3>Same styles for print and screens under 480px</h3><span class="mq-badge" data-q="print, screen and (max-width: 479px)">Checking...</span></div>
+      <pre><code>@media print, screen and (max-width: 479px) {
+  #mq-d { border-color: #ef4444; background: #ef444422; }
+  #mq-d .mq-letter { background: #ef4444; }
+}</code></pre>
+      <p class="muted">The comma works like OR. The styles apply when the page is printed, or on a screen narrower than 480px. Open the print preview (Ctrl + P) to see the print side.</p>
+    </article>
+  </div>
+  <section class="card">
+    <h2>Quick Test Sizes</h2>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Viewport (W x H)</th><th>a</th><th>b</th><th>c</th><th>d</th></tr></thead>
+      <tbody>
+        <tr><td>375 x 812 (phone, portrait)</td><td>No</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+        <tr><td>500 x 900 (small, portrait)</td><td>Yes</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+        <tr><td>800 x 600 (4:3 window)</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>900 x 400 (wide, landscape)</td><td>No</td><td>No</td><td>No</td><td>No</td></tr>
+        <tr><td>1280 x 800 (laptop)</td><td>No</td><td>No</td><td>No</td><td>No</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+</main>
+<footer>
+  <p>Lab 10: Responsive Web Design, Task 1 | IT 4403, Kennesaw State University</p>
+  <p><a href="../index.html#lab10">Back to Lab 10: Responsive Web Design</a></p>
+</footer>
+<script>
+$(function () {
+  function update() {
+    var w = window.innerWidth, h = window.innerHeight;
+    $("#vpW").text(w + "px");
+    $("#vpH").text(h + "px");
+    $("#vpO").text(window.matchMedia("(orientation: portrait)").matches ? "Portrait" : "Landscape");
+    $("#vpA").text((w / h).toFixed(2) + " : 1 (16:9 is 1.78 : 1)");
+    // Same query text as the CSS, checked from JavaScript
+    $(".mq-badge").each(function () {
+      var on = window.matchMedia($(this).data("q")).matches;
+      $(this).toggleClass("on", on).text(on ? "Matches now" : "Not matching");
+    });
+  }
+  $(window).on("resize orientationchange", update);
+  update();
+});
+</script>
+</body>
+</html>
