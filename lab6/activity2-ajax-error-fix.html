@@ -165,13 +165,14 @@ try {
 } catch (e) {}
 
 var API = "https://www.googleapis.com/books/v1/volumes";
+var API_KEY = "AIzaSyA30uKVK7ycfB3jxv3nGbmr3wvSYCW7DlA";   // restricted to this website in Google Cloud
 
 function loadBooks() {
   var $out = $("#ajaxDiv1");
   $out.html('<span class="muted">Loading books from Google Books...</span>');
   $("#button1").prop("disabled", true);
 
-  $.getJSON(API, { q: "php mysql", maxResults: 8 })
+  $.getJSON(API, { q: "php mysql", maxResults: 8, key: API_KEY })
     .done(function (data) {
       var items = (data && data.items) || [];
       if (!items.length) { $out.html('<span class="muted">No books were returned.</span>'); return; }
@@ -188,7 +189,10 @@ function loadBooks() {
       $out.empty().append($list).hide().fadeIn("slow");
     })
     .fail(function (xhr, status) {
-      $out.html('<p class="error">The request failed (' + (xhr.status || status) + '). Try again in a moment.</p>');
+      var msg = xhr.status === 429 ? "Google Books is limiting requests right now. Wait a minute, then try again."
+        : xhr.status === 403 ? "Google Books rejected the request (403). The API key may not allow this site."
+        : "The request failed (" + (xhr.status || status) + "). Try again in a moment.";
+      $out.html('<p class="error">' + msg + '</p>');
     })
     .always(function () { $("#button1").prop("disabled", false); });
 }

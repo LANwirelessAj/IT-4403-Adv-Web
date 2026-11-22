@@ -134,6 +134,17 @@
 
 // ---------- Google Books request, shared by every exercise ----------
 var API = "https://www.googleapis.com/books/v1/volumes";
+// Free Google Books API key. It is restricted to this website in Google Cloud,
+// so it only works on pages served from the course site.
+var API_KEY = "AIzaSyA30uKVK7ycfB3jxv3nGbmr3wvSYCW7DlA";
+
+// Explains a failed request in plain words
+function bookError(xhr, textStatus) {
+  if (xhr.status === 429) return "Google Books is limiting searches right now. Wait a minute, then try again.";
+  if (xhr.status === 403) return "Google Books rejected the request (403). The API key may not allow this site.";
+  if (textStatus === "timeout") return "Google Books took too long to respond. Try again.";
+  return "The search failed (" + (xhr.status || textStatus) + "). Try again in a moment.";
+}
 
 // Turns one Google Books item into the fields the page displays.
 // Missing fields get fallbacks here so the display code never has to check.
@@ -172,7 +183,7 @@ function searchBooks(onDone) {
   $("#go").prop("disabled", true).text("Searching...");
   $("#status").html('<div class="out status">Searching Google Books for "' + $("<i>").text(term).html() + '"...</div>');
 
-  $.ajax({ url: API, data: { q: term, maxResults: 12, printType: "books" }, dataType: "json", timeout: 15000 })
+  $.ajax({ url: API, data: { q: term, maxResults: 12, printType: "books", key: API_KEY }, dataType: "json", timeout: 15000 })
     .done(function (data) {
       var books = $.map((data && data.items) || [], toBook);
       if (!books.length) {
@@ -185,7 +196,7 @@ function searchBooks(onDone) {
     })
     .fail(function (xhr, textStatus) {
       $("#results").empty();
-      $("#status").html('<div class="out status err">The search failed (' + (xhr.status || textStatus) + '). Try again in a moment.</div>');
+      $("#status").html('<div class="out status err">' + bookError(xhr, textStatus) + '</div>');
     })
     .always(function () { busy = false; $("#go").prop("disabled", false).text("Search"); });
 }
